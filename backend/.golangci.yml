@@ -1,0 +1,83 @@
+# See full settings at https://github.com/golangci/golangci-lint
+run:
+  concurrency: 4
+  timeout: 5m
+  tests: false
+
+issues:
+  exclude-dirs:
+    - bin
+    - hack
+    - proto
+    - schema
+
+linters:
+  disable-all: true
+  enable:
+    - govet
+    - errcheck
+    - staticcheck
+    - unused
+    - gosimple
+    - ineffassign
+    - funlen
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - gofmt
+    - lll
+    - misspell
+    - whitespace
+    - unparam
+    - nolintlint
+    - gci
+
+  fast: false
+
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+  funlen:
+    lines: 120
+    statements: 80
+  gocognit:
+    min-complexity: 30
+  goconst:
+    min-len: 5
+    min-occurrences: 3
+  gocyclo:
+    min-complexity: 20
+  gofmt:
+    simplify: true
+  govet:
+    enable:
+      - fieldalignment
+  lll:
+    line-length: 160
+  misspell:
+    locale: US
+  whitespace:
+    multi-if: true
+    multi-func: true
+  gocritic:
+    settings:
+      nestingReduce:
+        bodyWidth: 3
+      rangeValCopy:
+        sizeThreshold: 2048
+    disabled-checks:
+      - whyNoLint
+      - wrapperFunc
+      - ifElseChain
+      - unnamedResult
+      - paramTypeCombine
+      - hugeParam
+      - singleCaseSwitch
+      - commentedOutCode
+      - ptrToRefParam
+    enabled-tags:
+      - performance
+      - style
+      - experimental
