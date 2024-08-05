@@ -1,0 +1,134 @@
+openapi: 3.0.0
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/harei.shirao/onpu/1.0.0
+info:
+  version: "1.0.0"
+  title: onpu-api
+  description: The API for the onpu project
+paths:
+  /user:
+    post:
+      summary: ユーザー登録(Spotify OAuthの使用によっては変更しそう)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                spotify_id:
+                  type: string
+                user_name:
+                  type: string
+                display_name:
+                  type: string
+                icon_image:
+                  type: string
+                theme_id:
+                  type: integer
+                x_link:
+                  type: string
+                instagram_link:
+                  type: string
+      responses:
+        '201':
+    put:
+      summary: ユーザー情報更新
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                spotify_id:
+                  type: string
+                user_name:
+                  type: string
+                display_name:
+                  type: string
+                icon_image:
+                  type: string
+                theme_id:
+                  type: integer
+                x_link:
+                  type: string
+                instagram_link:
+                  type: string
+      responses:
+        '201':
+          description: 更新に成功
+          content:
+            application/json:
+              schema:
+                type: object
+              
+              
+      
+  /user/{user_id}:
+    get:
+      summary: ユーザー情報の取得(プロフィール画面)
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema: 
+            type: integer
+          description: usersテーブルのid
+      responses:
+        '200':
+          description: 取得に成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  spotify_id:
+                    type: string
+                  user_name:
+                    type: string
+                  display_name:
+                    type: string
+                  icon_image:
+                    type: string
+                  theme_id:
+                    type: integer
+                  x_link:
+                    type: string
+                  instagram_link:
+                    type: string
+                  created_at:
+                    type: string
+                  updated_at:
+                    type: string
+                  
+  /music/{user_id}:
+    get:
+      summary: そのユーザーのmusic listsの中で最新のものの中身(musics)
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema: 
+            type: integer
+          description: usersテーブルのid
+      responses:
+        '200':
+          description: 取得
+  /music:
+    post:
+      summary: プロフィールに表示している曲の更新ボタン押した時
+      requestBody:
+        required: true
+        
+    
+/follower/{user_id}:
+  get:
+/followee/{user_id}:
+  get:
