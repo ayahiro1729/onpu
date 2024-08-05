@@ -18,7 +18,7 @@ COPY ./backend .
 RUN go build -o /app/main .
 
 # ポートを指定
-EXPOSE 80
+EXPOSE 8080
 
 # アプリケーションを起動
 CMD ["/app/main"]

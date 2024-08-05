@@ -15,7 +15,7 @@ services:
       context: .
       dockerfile: ./docker/backend/Dockerfile
     ports:
-      - "80:80"
+      - "8080:8080"
     # volumes:
     #   - ./backend:/app
     networks:
@@ -34,22 +34,6 @@ services:
       - app-network
     ports:
       - "5432:5432"
-
-  pgadmin4:
-    image: dpage/pgadmin4:8.4
-    ports:
-      - 8080:80
-    volumes:
-      - ./docker/pgsql/config/servers.json:/pgadmin4/servers.json
-    environment:
-      PGADMIN_DEFAULT_EMAIL: user@example.com
-      PGADMIN_DEFAULT_PASSWORD: password
-      PGADMIN_CONFIG_SERVER_MODE: "False"
-      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
-    networks:
-      - app-network
-    depends_on:
-      - db
 
 volumes:
   pgdata:

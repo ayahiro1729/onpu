@@ -4,7 +4,7 @@ import "github.com/caarlos0/env"
 
 type Config struct {
 	Env string `env:"ENV" envDefault:"dev"`
-	Port string `env:"PORT" envDefault:"80"`
+	Port string `env:"PORT" envDefault:"8080"`
 	DBHost string `env:"DB_HOST" envDefault:"db"`
 	DBUser string `env:"DB_USER" envDefault:"user"`
 	DBPassword string `env:"DB_PASSWORD" envDefault:"password"`
