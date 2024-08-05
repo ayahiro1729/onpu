@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/ayahiro1729/onpu/api/controller"
 	"github.com/ayahiro1729/onpu/api/infrastructure/database"
@@ -13,7 +14,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	s.Run()
+	if err := s.Run(); err != nil {
+		log.Fatalf("サーバーの起動に失敗しました: %v", err)
+	}
 
 	ctx := context.Background()
 	db := database.New(ctx)
