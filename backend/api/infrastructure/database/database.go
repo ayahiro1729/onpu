@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/ayahiro1729/onpu/api/config"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
