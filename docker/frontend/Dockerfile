@@ -8,6 +8,7 @@ WORKDIR /onpu
 COPY ./frontend/package*.json ./
 
 # 依存関係をインストール
+RUN npm cache clean --force
 RUN npm install
 
 # アプリケーションのソースコードをコピー
