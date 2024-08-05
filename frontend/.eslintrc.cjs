@@ -3,6 +3,7 @@
  * It relies on recommended configs out of the box for simplicity, but you can
  * and should modify this configuration to best suit your team's needs.
  */
+const path = require('path');
 
 /* @type {import('eslint').Linter.Config} */
 module.exports = {
@@ -22,6 +23,12 @@ module.exports = {
 
   // Base config
   extends: ["eslint:recommended"],
+  resolve: {
+    alias: {
+      '~': path.resolve(__dirname),
+    },
+    extensions: ['.js', '.jsx', '.ts', '.tsx'], // 拡張子の設定も忘れずに
+  },
 
   overrides: [
     // React
@@ -80,4 +87,5 @@ module.exports = {
       },
     },
   ],
+  ignorePatterns: ['tailwind.config.ts'],
 };
