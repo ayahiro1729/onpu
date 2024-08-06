@@ -34,6 +34,52 @@ paths:
                   type: string
       responses:
         '201':
+          description: ユーザー登録に成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+  /user/{user_id}:
+    get:
+      summary: ユーザー情報の取得(プロフィール画面)
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: usersテーブルのid
+      responses:
+        '200':
+          description: 取得に成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  spotify_id:
+                    type: string
+                  user_name:
+                    type: string
+                  display_name:
+                    type: string
+                  icon_image:
+                    type: string
+                  theme_id:
+                    type: integer
+                  x_link:
+                    type: string
+                  instagram_link:
+                    type: string
+                  created_at:
+                    type: string
+                  updated_at:
+                    type: string
     put:
       summary: ユーザー情報更新
       requestBody:
@@ -65,70 +111,226 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-              
-              
-      
-  /user/{user_id}:
+                type: object  
+  /user/{search_word}:
     get:
-      summary: ユーザー情報の取得(プロフィール画面)
+      summary: ユーザー検索(1文字入力される度に送る)
       parameters:
-        - name: user_id
+        - name: search_word
           in: path
           required: true
-          schema: 
-            type: integer
-          description: usersテーブルのid
+          schema:
+            type: string
+          description: 検索するための入力文字列
       responses:
         '200':
-          description: 取得に成功
+          description: 検索結果の取得に成功
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  id:
-                    type: integer
-                  spotify_id:
-                    type: string
-                  user_name:
-                    type: string
-                  display_name:
-                    type: string
-                  icon_image:
-                    type: string
-                  theme_id:
-                    type: integer
-                  x_link:
-                    type: string
-                  instagram_link:
-                    type: string
-                  created_at:
-                    type: string
-                  updated_at:
-                    type: string
-                  
+                  users:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        user_id:
+                          type: integer
+                        user_name:
+                          type: string
+                        display_name:
+                          type: string
+                        icon_image:
+                          type: string
   /music/{user_id}:
     get:
-      summary: そのユーザーのmusic listsの中で最新のものの中身(musics)
+      summary: そのユーザーのmusic_listsの中で最新のものの中身(musics)
       parameters:
         - name: user_id
           in: path
           required: true
-          schema: 
+          schema:
             type: integer
           description: usersテーブルのid
       responses:
         '200':
           description: 取得
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  music_list_id:
+                    type: integer
+                  musics:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        music_id:
+                          type: integer
+                        name:
+                          type: string
+                        image:
+                          type: string
+                        artist_name:
+                          type: string
+                        spotify_link:
+                          type: string
+                  created_at:
+                    type: string
   /music:
     post:
       summary: プロフィールに表示している曲の更新ボタン押した時
       requestBody:
         required: true
-        
-    
-/follower/{user_id}:
-  get:
-/followee/{user_id}:
-  get:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                spotify_id:
+                  type: string
+      responses:
+        '201':
+          description: プロフィールの音楽更新(テーブルへの追加ができたとき)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  music_list_id:
+                    type: integer
+                  musics:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        music_id:
+                          type: integer
+                        name:
+                          type: string
+                        image:
+                          type: string
+                        artist_name:
+                          type: string
+                        spotify_link:
+                          type: string
+                  created_at:
+                    type: string
+  /follower/{user_id}:
+    get:
+      summary: そのユーザーのフォロワー一覧を取得(user_idがfollowee_idと一致するものを取得)
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: usersテーブルのid
+      responses:
+        '200':
+          description: フォロワーの取得に成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  followers:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        user_id:
+                          type: integer
+                        user_name:
+                          type: string
+                        display_name:
+                          type: string
+                        icon_image:
+                          type: string
+                        created_at:
+                          type: string
+  /followee/{user_id}:
+    get:
+      summary: そのユーザーのフォロー中一覧取得
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: usersテーブルのid
+      responses:
+        '200':
+          description: フォロー中の取得に成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  followees:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        user_id:
+                          type: integer
+                        user_name:
+                          type: string
+                        display_name:
+                          type: string
+                        icon_image:
+                          type: string
+                        created_at:
+                          type: string
+  /follow:
+    post:
+      summary: 他のユーザーをフォロー
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                follower_id:
+                  type: integer
+                followee_id:
+                  type: integer
+      responses:
+        '200':
+          description: フォローに成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+    delete:
+      summary: フォローを外す
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                follower_id:
+                  type: integer
+                followee_id:
+                  type: integer
+      responses:
+        '200':
+          description: フォローの解除に成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
