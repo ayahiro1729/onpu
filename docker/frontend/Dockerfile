@@ -9,6 +9,7 @@ COPY ./frontend/package*.json ./
 
 # 依存関係をインストール
 RUN npm cache clean --force
+RUN npm install -g npm@latest
 RUN npm install
 
 # アプリケーションのソースコードをコピー
