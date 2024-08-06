@@ -1,6 +1,9 @@
 # ベースイメージを指定
 FROM golang:1.22-alpine
 
+# CompileDaemonをインストール
+RUN go install github.com/githubnemo/CompileDaemon@latest
+
 # 作業ディレクトリを設定
 WORKDIR /app
 
@@ -14,11 +17,8 @@ RUN go mod tidy
 # アプリケーションのソースコードをコピー
 COPY ./backend .
 
-# アプリケーションをビルド
-RUN go build -o /app/main .
-
 # ポートを指定
 EXPOSE 8080
 
 # アプリケーションを起動
-CMD ["/app/main"]
+CMD ["CompileDaemon", "--build=go build -o /app/main /app/main.go", "--command=/app/main"]
