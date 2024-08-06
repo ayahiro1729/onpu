@@ -22,13 +22,13 @@ const Profile = () => {
           <p className='flex justify-center items-center text-xl'>Name</p>
         </div>
         <div className='flex flex-col gap-2'>
-          <div className='flex gap-2'>
-            <img src={X} className='w-5 h-auto'/>
-            <a href='https://x.com'>@hoge</a>
+          <div className='flex gap-2 justify-center items-center'>
+            <img src={X} className='w-5 h-fit'/>
+            <a href='https://x.com' className='text-sm'>@hogehogehoge</a>
           </div>
-          <div className='flex gap-2'>
-            <img src={Instagram} className='w-5 h-auto'/>
-            <a href='https://www.instagram.com/'>@hoge</a>
+          <div className='flex gap-2 justify-center items-center'>
+            <img src={Instagram} className='w-5 h-fit'/>
+            <a href='https://www.instagram.com/' className='text-sm'>@hogehogehoge</a>
           </div>
         </div>
       </div>
