@@ -14,7 +14,7 @@ import (
 var db *gorm.DB
 
 func New(ctx context.Context) *gorm.DB {
-	cfg, err := config.New()
+	cfg, err := config.NewDBConfig()
 	if err != nil {
 		panic(err)
 	}
