@@ -5,9 +5,8 @@ import (
 
 	"github.com/ayahiro1729/onpu/api/controller/handler"
 	"github.com/ayahiro1729/onpu/api/controller/middleware"
-	"golang.org/x/exp/slog"
-
 	"github.com/gin-gonic/gin"
+	"golang.org/x/exp/slog"
 )
 
 const (

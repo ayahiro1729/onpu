@@ -8,6 +8,8 @@ import {
 import "./tailwind.css";
 import { Header } from "~/components/Header";
 
+import { LiveReload } from "@remix-run/react";
+
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
@@ -18,6 +20,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
+        <LiveReload />
         {children}
         <ScrollRestoration />
         <Scripts />
