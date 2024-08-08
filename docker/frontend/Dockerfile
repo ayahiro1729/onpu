@@ -12,9 +12,6 @@ RUN npm cache clean --force
 RUN npm install -g npm@latest
 RUN npm install
 
-RUN apk update && \
-    apk add --no-cache git
-
 # アプリケーションのソースコードをコピー
 COPY ./frontend .
 
