@@ -3,12 +3,14 @@ package controller
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/ayahiro1729/onpu/api/config"
 	"github.com/ayahiro1729/onpu/api/controller/handler"
 	"github.com/ayahiro1729/onpu/api/controller/middleware"
 	"github.com/ayahiro1729/onpu/api/usecase/service"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/exp/slog"
 )
 
 const (
