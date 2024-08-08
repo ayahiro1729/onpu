@@ -2,7 +2,6 @@ package repository
 
 import (
 	"github.com/ayahiro1729/onpu/api/domain/model"
-	
 	"gorm.io/gorm"
 )
 
@@ -37,6 +36,7 @@ func (r *UserRepository) CreateUser(user *model.User) error {
 	if err := r.db.Create(user).Error; err != nil {
 		return err
 	}
+	return nil
 }
 
 // ユーザーを更新

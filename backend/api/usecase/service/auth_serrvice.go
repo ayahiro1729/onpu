@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"net/http"
+	"time"
 
 	"github.com/ayahiro1729/onpu/api/config"
-	"github.com/ayahiro1729/onpu/api/model"
-
+	"github.com/ayahiro1729/onpu/api/domain/model"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -21,15 +22,21 @@ func NewAuthService(spotifyConfig *config.SpotifyConfig) *AuthService {
 	}
 }
 
+func (s *AuthService) GetSpotifyAuthURL() string {
+	return "https://accounts.spotify.com/authorize?client_id=" + s.spotifyConfig.ClientID +
+		"&response_type=code&redirect_uri=" + s.spotifyConfig.RedirectURI +
+		"&scope=user-read-private user-read-email"
+}
+
 // Spotifyの認証コードを使用してアクセストークンを取得
 func (s *AuthService) GetSpotifyToken(code string) (string, error) {
 	uri := "https://accounts.spotify.com/api/token"
 
 	reqBody := map[string]string{
-		"grant_type": "authorization_code",
-		"code": code,
-		"redirect_uri": s.spotifyConfig.RedirectURI,
-		"client_id": s.spotifyConfig.ClientID,
+		"grant_type":    "authorization_code",
+		"code":          code,
+		"redirect_uri":  s.spotifyConfig.RedirectURI,
+		"client_id":     s.spotifyConfig.ClientID,
 		"client_secret": s.spotifyConfig.ClientSecret,
 	}
 
@@ -61,7 +68,7 @@ func (s *AuthService) GetSpotifyToken(code string) (string, error) {
 
 // Spotifyのアクセストークンを使用してユーザ情報を取得
 func (s *AuthService) GetSpotifyUser(token string) (*model.User, error) {
-	req, err := http.NewRequest("GET", "https://api.spotify.com/v1/me", nil)
+	req, err := http.NewRequest("GET", "https://api.spotify.com/v1/me", http.NoBody)
 	if err != nil {
 		return nil, err
 	}
@@ -83,17 +90,17 @@ func (s *AuthService) GetSpotifyUser(token string) (*model.User, error) {
 		DisplayName string `json:"display_name"`
 		Email       string `json:"email"`
 		Images      []struct {
-				URL string `json:"url"`
+			URL string `json:"url"`
 		} `json:"images"`
 	}
 
 	user := &model.User{
-		SpotifyID:    spotifyUser.ID,
-		UserName:     spotifyUser.DisplayName,
-		DisplayName:  spotifyUser.DisplayName,
-		IconImage:   	"",
-		ThemeID:      0,
-		XLink:        "",
+		SpotifyID:     spotifyUser.ID,
+		UserName:      spotifyUser.DisplayName,
+		DisplayName:   spotifyUser.DisplayName,
+		IconImage:     "",
+		ThemeID:       0,
+		XLink:         "",
 		InstagramLink: "",
 	}
 	if len(spotifyUser.Images) > 0 {
@@ -107,9 +114,9 @@ func (s *AuthService) GetSpotifyUser(token string) (*model.User, error) {
 func (s *AuthService) GenerateJWTToken(user *model.User) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id": user.SpotifyID,
-		"exp": jwt.TimeFunc().Add(time.Hour * 72).Unix(),
+		"exp":     time.Now().Add(time.Hour * 72).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-  return token.SignedString([]byte(s.config.JWTSecret))
+	return token.SignedString([]byte(s.spotifyConfig.JWTSecret))
 }
