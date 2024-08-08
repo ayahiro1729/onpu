@@ -6,7 +6,6 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend:/app
       - /app/node_modules
     networks:
       - app-network
@@ -20,8 +19,6 @@ services:
       dockerfile: ./docker/backend/Dockerfile
     ports:
       - "8080:8080"
-    volumes:
-      - ./backend:/app
     networks:
       - app-network
 
