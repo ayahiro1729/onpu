@@ -1,7 +1,7 @@
 import React from 'react'
 import logo from '/OnpuLogo.jpg'
-import searchLogo from '/search.svg'
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
+import { UserSearch } from './UserSearch'
 
 export const Header = () => {
   return (
@@ -11,7 +11,7 @@ export const Header = () => {
         <p className='flex justify-center items-center'>Onpu</p>
       </div>
       <div className='flex flex-column gap-3'>
-        <img src={searchLogo} className='w-7 h-auto'/>
+        <UserSearch />
         <Avatar className='w-8 h-auto'>
           <AvatarImage src="https://github.com/shadcn.png" />
           <AvatarFallback>CN</AvatarFallback>
