@@ -1,16 +1,33 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Button } from '~/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
 import X from '/x_logo.png'
 import Instagram from '/instagram_logo.png'
+import { Link } from '@remix-run/react'
 
-const Profile = () => {
+type ProfileProps = {
+  isMypage?: boolean
+}
+
+const Profile: React.FC<ProfileProps> = ({isMypage = false}) => {
+  const [isFollowed, setIsFollowed] = useState<boolean>(false)
+
+  const handleFollow = () => {
+    setIsFollowed(!isFollowed)
+  }
+
   return (
     <div className='flex flex-col gap-4'>
       <div className='flex justify-between'>
         <p className='flex justify-center items-center text-2xl'>Profile</p>
         <div className='pt-3'>
-          <Button size="sm">Add a friend</Button>
+          {isMypage ? 
+            <Link to="/profileedit">
+              <Button size="sm">Edit</Button>
+            </Link> :
+            isFollowed ? 
+            <Button size="sm" onClick={handleFollow}>Unfollow</Button> : <Button size="sm" onClick={handleFollow} variant="outline">Follow</Button>
+          }
         </div>
       </div>
       <div className='flex justify-between items-center px-2'>
