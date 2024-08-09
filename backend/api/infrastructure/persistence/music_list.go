@@ -27,7 +27,7 @@ func NewMusicListPersistence(db *gorm.DB) repository.MusicListRepository {
 func (mlp *MusicListPersistence) LatestMusicList() (repository.MusicListWithMusicDTO, error) {
 	musicList := repository.MusicListDTO{}
 
-	err := mlp.db.Model(&MusicList{}).
+	err := mlp.db.Model(&model.MusicList{}).
 			Select("id AS music_list_id", "created_at").
 			Where("user_id = ?", user_id).
 			Order("created_at desc").
@@ -35,20 +35,23 @@ func (mlp *MusicListPersistence) LatestMusicList() (repository.MusicListWithMusi
 			Scan(&musicList).Error
 
 	if err != nil {
-		fmt.Println("Error:", err)
-		return
+		return nil, err
 	}
 
 	musics := []repository.MusicDTO{}
 
-	err := mlp.db.Model(&Musics{}).
+	err := mlp.db.Model(&model.Musics{}).
 			Select("id AS music_id", "name", "image", "artist_name", "spotify_link").
 			Where("music_list_id = ?", musicList.MusicListID).
 			Scan(&musics).Error
 	
 	if err != nil {
-		fmt.Println("Error:", err)
-		return
+		return nil, err
 	}
 
+	return &repository.MusicListWithMusicDTO{
+		MusicListID: musicList.MusicID
+		CreatedAt: musicList.CreatedAt
+		Musics: musics
+	}, nil
 }
