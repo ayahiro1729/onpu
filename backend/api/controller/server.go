@@ -66,7 +66,7 @@ func NewServer() (*gin.Engine, error) {
 		authHandler := handler.NewAuthHandler(authService)
 
 		// Spotifyからのリダイレクトを受け取り、アクセストークンを取得
-		tag.POST("/user", authHandler.ExchangeCodeForToken)
+		r.GET("/callback", authHandler.ExchangeCodeForToken)
 	}
 
 	// ユーザー情報API

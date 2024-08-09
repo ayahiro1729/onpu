@@ -1,9 +1,11 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/ayahiro1729/onpu/api/usecase/service"
+	
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
@@ -40,5 +42,7 @@ func (h *AuthHandler) ExchangeCodeForToken(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"access_token": token})
+	// フロントエンドにリダイレクト
+	redirectURL := fmt.Sprintf("http://localhost:3000/mypage?access_token=%s", token)
+	c.Redirect(http.StatusFound, redirectURL)
 }
