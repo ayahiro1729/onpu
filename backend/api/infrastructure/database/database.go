@@ -1,7 +1,6 @@
 package database
 
 import (
-	"context"
 	"fmt"
 	"time"
 
@@ -13,7 +12,7 @@ import (
 
 var db *gorm.DB
 
-func New(ctx context.Context) *gorm.DB {
+func NewDB() *gorm.DB {
 	cfg, err := config.NewDBConfig()
 	if err != nil {
 		panic(err)
@@ -37,7 +36,7 @@ func New(ctx context.Context) *gorm.DB {
 			SingularTable: true,
 		},
 	}); err != nil {
-		connect(dialector, 100)
+		connect(dialector, 10)
 	}
 
 	return db

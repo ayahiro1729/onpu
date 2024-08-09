@@ -12,6 +12,11 @@ go mod download
 
 ## マイグレーション
 cd backend
+
+### マイグレーションファイルの作成
+migrate create -ext sql -dir db/migrations -seq create_users_table
+
+### マイグレーションの実行
 export DATABASE_URL=postgres://user:password@localhost:5432/onpu?sslmode=disable
 migrate -path db/migrations -database "$DATABASE_URL" up
 

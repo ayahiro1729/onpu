@@ -7,6 +7,8 @@ import (
 	"github.com/ayahiro1729/onpu/api/config"
 	"github.com/ayahiro1729/onpu/api/controller/handler"
 	"github.com/ayahiro1729/onpu/api/controller/middleware"
+	"github.com/ayahiro1729/onpu/api/infrastructure/database"
+	"github.com/ayahiro1729/onpu/api/infrastructure/repository"
 	"github.com/ayahiro1729/onpu/api/usecase/service"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
@@ -42,6 +44,14 @@ func NewServer() (*gin.Engine, error) {
 	store := cookie.NewStore([]byte("secret"))
 	r.Use(sessions.Sessions("mysession", store))
 
+	// setting a database
+	db := database.NewDB()
+	if db != nil {
+		fmt.Println("PostgreSQLに接続成功")
+	} else {
+		fmt.Println("PostgreSQLに接続失敗")
+	}
+
 	tag := r.Group(apiVersion)
 	// ヘルスチェックAPI
 	{
@@ -56,7 +66,17 @@ func NewServer() (*gin.Engine, error) {
 		authHandler := handler.NewAuthHandler(authService)
 
 		// Spotifyからのリダイレクトを受け取り、アクセストークンを取得
-		tag.POST("/user", authHandler.GetAccessTokenFromSpotify)
+		tag.POST("/user", authHandler.ExchangeCodeForToken)
+	}
+
+	// ユーザー情報API
+	{
+		userRepository := repository.NewUserRepository(db)
+		userService := service.NewUserService(*userRepository)
+		userHandler := handler.NewUserHandler(userService)
+
+		// ユーザーの情報を取得（プロフィール画面）
+		tag.GET("/user/:user_id", userHandler.GetUserProfile)
 	}
 
 	for _, route := range r.Routes() {
