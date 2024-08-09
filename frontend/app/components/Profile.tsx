@@ -24,7 +24,7 @@ const Profile = () => {
         <div className='flex flex-col gap-2'>
           <div className='flex gap-2 items-center'>
             <img src={X} className='w-5 h-fit'/>
-            <a href='https://x.com' className='text-xs'>@hogehoghoge</a>
+            <a href='https://x.com' className='text-xs'>@hogehogehoge</a>
           </div>
           <div className='flex gap-2 items-center'>
             <img src={Instagram} className='w-5 h-fit'/>
