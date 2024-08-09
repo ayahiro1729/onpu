@@ -10,7 +10,7 @@ export default function ProfileEdit () {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log("Form submitted");
-    navigate("/");
+    navigate("/mypage");
   };
   
   return (
