@@ -22,10 +22,11 @@ type MusicListDTO struct {
 }
 
 type MusicListWithMusicDTO struct {
-	MusicListDTO
+	MusicListID	int			`json:"music_list_id"`
+	CreatedAt	time.Time	`json:"created_at"`
 	Musics		[]MusicDTO	`json:"musics"`
 }
 
 type MusicListRepository interface {
-	LatestMusicList(userID int) (*MusicListDTO, error)
+	LatestMusicList(userID int) (*MusicListWithMusicDTO, error)
 }
