@@ -17,7 +17,7 @@ func main() {
 
 	fmt.Println("サーバーを起動します")
 
-	if err := s.Run(); err != nil {
+	if err := s.Run(":8080"); err != nil {
 		log.Fatalf("サーバーの起動に失敗しました: %v", err)
 	}
 

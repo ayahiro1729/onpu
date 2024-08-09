@@ -2,13 +2,14 @@ package controller
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/ayahiro1729/onpu/api/config"
 	"github.com/ayahiro1729/onpu/api/controller/handler"
 	"github.com/ayahiro1729/onpu/api/controller/middleware"
 	"github.com/ayahiro1729/onpu/api/usecase/service"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/exp/slog"
 )
@@ -37,20 +38,26 @@ func NewServer() (*gin.Engine, error) {
 	// setting a logger
 	r.Use(middleware.Cors(), middleware.Logger(logger))
 
+	// setting a session
+	store := cookie.NewStore([]byte("secret"))
+	r.Use(sessions.Sessions("mysession", store))
+
 	tag := r.Group(apiVersion)
+	// ヘルスチェックAPI
 	{
 		systemHandler := handler.NewSystemHandler()
+
 		tag.GET("/system/health", systemHandler.Health)
 	}
 
-	log.Printf("Starting auth routing...")
-	authService := service.NewAuthService(spotifyConfig)
-	authHandler := handler.NewAuthHandler(authService)
-	// Spotifyの認証画面にリダイレクト
-	tag.GET("/spotify", authHandler.RedirectToSpotifyAuth)
-	// Spotifyからのリダイレクトを受け取り、アクセストークンを取得
-	tag.GET("/spotify/callback", authHandler.GetAccessTokenFromSpotify)
-	fmt.Println("Auth routes have been set up.")
+	// Spotify認証API
+	{
+		authService := service.NewAuthService(spotifyConfig)
+		authHandler := handler.NewAuthHandler(authService)
+
+		// Spotifyからのリダイレクトを受け取り、アクセストークンを取得
+		tag.POST("/user", authHandler.GetAccessTokenFromSpotify)
+	}
 
 	for _, route := range r.Routes() {
 		fmt.Printf("Method: %s - Path: %s\n", route.Method, route.Path)
