@@ -19,7 +19,7 @@ func NewAuthHandler(authService *service.AuthService) *AuthHandler {
 }
 
 // Spotifyからのリダイレクトを受け取り、アクセストークンを取得
-func (h *AuthHandler) GetAccessTokenFromSpotify(c *gin.Context) {
+func (h *AuthHandler) ExchangeCodeForToken(c *gin.Context) {
 	code := c.Query("code")
 	if code == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Authorization code not provided"})
@@ -27,7 +27,7 @@ func (h *AuthHandler) GetAccessTokenFromSpotify(c *gin.Context) {
 	}
 
 	// 認可コードを使用してアクセストークンを取得
-	token, err := h.authService.GetSpotifyToken(code)
+	token, err := h.authService.FetchSpotifyToken(code)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
