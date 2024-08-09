@@ -12,6 +12,8 @@ type Follow struct {
 	FollowerID int       `gorm:"not null"`
 	FolloweeID int       `gorm:"not null"`
 	CreatedAt  time.Time `gorm:"autoCreateTime"`
+	UpdatedAt  time.Time `gorm:"autoUpdateTime"`
+	DeletedAt  time.Time `gorm:"autoDeleteTime"`
 
 	// Relations
 	Follower User `gorm:"foreignKey:FollowerID"`
