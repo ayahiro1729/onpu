@@ -21,7 +21,7 @@ func NewAuthService(spotifyConfig *config.SpotifyConfig) *AuthService {
 }
 
 // Spotifyの認証コードを使用してアクセストークンを取得
-func (s *AuthService) GetSpotifyToken(code string) (string, error) {
+func (s *AuthService) FetchSpotifyToken(code string) (string, error) {
 	uri := "https://accounts.spotify.com/api/token"
 
 	reqBody := map[string]string{

@@ -1,23 +1,32 @@
-# ベースイメージを指定
 FROM golang:1.22-alpine
 
-# 作業ディレクトリを設定
 WORKDIR /app
 
-# キャッシュディレクトリを作成し、環境変数を設定
-ENV GOCACHE=/app/.cache/go-build
+ARG ENV=development
 
-# アプリケーションのソースコードをコピー
-COPY ./backend .
-
-# 依存関係を取得
-RUN go install github.com/cespare/reflex@latest
+# 依存関係を事前にコピーしてインストール
+COPY ./backend/go.mod ./backend/go.sum ./
 RUN go mod download
 RUN go mod tidy
-RUN mkdir -p ./bin/ && go build -o ./bin/server ./cmd/server
 
-# ポートを指定
+# ソースコードをコピー
+COPY ./backend .
+
+# 本番用ビルド
+RUN if [ "$ENV" = "production" ] ; then \
+        go build -o main ./cmd/server ; \
+    fi
+
+# 開発環境用のツールインストール
+RUN if [ "$ENV" = "development" ] ; then \
+        go install github.com/cespare/reflex@latest ; \
+    fi
+
 EXPOSE 8080
 
-# アプリケーションを起動
-CMD ["sh", "-c", "reflex -r '(\\.go$|go\\.mod)' -s ./bin/server"]
+# 環境に応じて起動コマンドを変更
+CMD if [ "$ENV" = "production" ] ; then \
+        ./main ; \
+    else \
+        reflex -r '\.go$' -s go run ./cmd/server ; \
+    fi
