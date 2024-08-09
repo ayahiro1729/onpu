@@ -2,6 +2,7 @@ import React from 'react'
 import logo from '/OnpuLogo.jpg'
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
 import { UserSearch } from './UserSearch'
+import { Link } from '@remix-run/react'
 
 export const Header = () => {
   return (
@@ -12,10 +13,12 @@ export const Header = () => {
       </div>
       <div className='flex flex-column gap-3'>
         <UserSearch />
-        <Avatar className='w-8 h-auto'>
-          <AvatarImage src="https://github.com/shadcn.png" />
-          <AvatarFallback>CN</AvatarFallback>
-        </Avatar>
+        <Link to="/profileedit">
+          <Avatar className='w-8 h-auto'>
+            <AvatarImage src="https://github.com/shadcn.png" />
+            <AvatarFallback>CN</AvatarFallback>
+          </Avatar>
+        </Link>
       </div>
     </div>
   )
