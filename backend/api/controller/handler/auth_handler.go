@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ayahiro1729/onpu/api/usecase/service"
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,12 +16,6 @@ func NewAuthHandler(authService *service.AuthService) *AuthHandler {
 	return &AuthHandler{
 		authService: authService,
 	}
-}
-
-// Spotifyの認証画面にリダイレクト
-func (h *AuthHandler) RedirectToSpotifyAuth(c *gin.Context) {
-	authURL := h.authService.GetSpotifyAuthURL()
-	c.Redirect(http.StatusFound, authURL)
 }
 
 // Spotifyからのリダイレクトを受け取り、アクセストークンを取得
@@ -38,19 +33,12 @@ func (h *AuthHandler) GetAccessTokenFromSpotify(c *gin.Context) {
 		return
 	}
 
-	// トークンを使用してSpotifyのユーザ情報を取得
-	user, err := h.authService.GetSpotifyUser(token)
-	if err != nil {
+	session := sessions.Default(c)
+	session.Set("access_token", token)
+	if err := session.Save(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	// JWTトークンを生成
-	jwtToken, err := h.authService.GenerateJWTToken(user)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"token": jwtToken})
+	c.JSON(http.StatusOK, gin.H{"access_token": token})
 }

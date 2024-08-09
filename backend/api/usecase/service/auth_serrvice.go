@@ -5,11 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"time"
 
 	"github.com/ayahiro1729/onpu/api/config"
 	"github.com/ayahiro1729/onpu/api/domain/model"
-	"github.com/golang-jwt/jwt/v5"
 )
 
 type AuthService struct {
@@ -20,12 +18,6 @@ func NewAuthService(spotifyConfig *config.SpotifyConfig) *AuthService {
 	return &AuthService{
 		spotifyConfig: spotifyConfig,
 	}
-}
-
-func (s *AuthService) GetSpotifyAuthURL() string {
-	return "https://accounts.spotify.com/authorize?client_id=" + s.spotifyConfig.ClientID +
-		"&response_type=code&redirect_uri=" + s.spotifyConfig.RedirectURI +
-		"&scope=user-read-private user-read-email"
 }
 
 // Spotifyの認証コードを使用してアクセストークンを取得
@@ -108,15 +100,4 @@ func (s *AuthService) GetSpotifyUser(token string) (*model.User, error) {
 	}
 
 	return user, nil
-}
-
-// Spotifyのユーザ情報を使用してJWTトークンを生成
-func (s *AuthService) GenerateJWTToken(user *model.User) (string, error) {
-	claims := jwt.MapClaims{
-		"user_id": user.SpotifyID,
-		"exp":     time.Now().Add(time.Hour * 72).Unix(),
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(s.spotifyConfig.JWTSecret))
 }
