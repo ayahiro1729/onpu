@@ -52,6 +52,12 @@ func NewServer() (*gin.Engine, error) {
 	tag.GET("/spotify/callback", authHandler.GetAccessTokenFromSpotify)
 	fmt.Println("Auth routes have been set up.")
 
+	log.Printf("Starting music list routing...")
+	musicListService := service.NewMusicListUsecase(service.NewMusicListRepository())
+	musicListHandler := handler.NewMusicListHandler(musicListService)
+	tag.GET("/music/:user_id", musicListHandler.GetLatestMusicList)
+	fmt.Println("Music list routes have been set up.")
+
 	for _, route := range r.Routes() {
 		fmt.Printf("Method: %s - Path: %s\n", route.Method, route.Path)
 	}
