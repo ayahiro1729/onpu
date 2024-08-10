@@ -19,7 +19,7 @@ type MusicCard = {
   src: string;
   title: string;
   category: string;
-  content: React.ReactNode;
+  content: string;
 };
 
 export const loader: LoaderFunction = async () => {
@@ -41,9 +41,11 @@ export const loader: LoaderFunction = async () => {
 };
 
 export function MusicList() {
-  const { musicList } = useLoaderData<typeof loader>();
-  const musics = musicList.map((card: MusicCard, index: number) => (
-    <Card key={card.src} card={card} index={index} />
+  // const { musicCardList } = useLoaderData<typeof loader>();
+  const musics = musicCardList.map((card: MusicCard, index: number) => (
+    <a href={card.content}>
+      <Card key={card.src} card={card} index={index} />
+    </a>
   ));
 
   return (
@@ -59,3 +61,30 @@ export function MusicList() {
     </div>
   );
 }
+
+const musicCardList: MusicCard[] = [
+  {
+    src: "/OnpuLogo.jpg",
+    title: "Onpu",
+    category: "Onpu",
+    content: "https://open.spotify.com/track/4uLU6hMCjMI75M1A2tKUQC"
+  },
+  {
+    src: "/OnpuLogo.jpg",
+    title: "Onpu",
+    category: "Onpu",
+    content: "https://open.spotify.com/track/4uLU6hMCjMI75M1A2tKUQC"
+  },
+  {
+    src: "/OnpuLogo.jpg",
+    title: "Onpu",
+    category: "Onpu",
+    content: "https://open.spotify.com/track/4uLU6hMCjMI75M1A2tKUQC"
+  },
+  {
+    src: "/OnpuLogo.jpg",
+    title: "Onpu",
+    category: "Onpu",
+    content: "https://open.spotify.com/track/4uLU6hMCjMI75M1A2tKUQC"
+  }
+];
