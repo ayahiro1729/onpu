@@ -65,8 +65,8 @@ func NewServer() (*gin.Engine, error) {
 		authService := service.NewAuthService(spotifyConfig)
 		authHandler := handler.NewAuthHandler(authService)
 
-		// Spotifyからのリダイレクトを受け取り、アクセストークンを取得
-		r.GET("/callback", authHandler.ExchangeCodeForToken)
+		// Spotifyからのリダイレクトを受け取り、①アクセストークンを取得、②ユーザー情報を取得、③登録またはログイン
+		r.GET("/callback", authHandler.AuthenticateUser)
 	}
 
 	// ユーザー情報API
@@ -74,6 +74,9 @@ func NewServer() (*gin.Engine, error) {
 		userRepository := repository.NewUserRepository(db)
 		userService := service.NewUserService(*userRepository)
 		userHandler := handler.NewUserHandler(userService)
+
+		// ユーザーを作成
+		tag.POST("/user", userHandler.PostUser)
 
 		// ユーザーの情報を取得（プロフィール画面）
 		tag.GET("/user/:user_id", userHandler.GetUserProfile)
