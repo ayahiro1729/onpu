@@ -79,6 +79,15 @@ func NewServer() (*gin.Engine, error) {
 		tag.GET("/user/:user_id", userHandler.GetUserProfile)
 	}
 
+	// DBから最新のmusic listを取得するAPI
+	{
+		musicListPersistence := persistence.NewMusicListPersistence(db)
+		musicListService := service.NewMusicListService(*musicListPersistence)
+		musicListHandler := handler.NewMusicListHandler(musicListService)
+
+		tag.GET("/music/:user_id", musicListHandler.LatestMusicList)
+	}
+
 	log.Printf("Starting music list routing...")
 	musicListService := service.NewMusicListUsecase(service.NewMusicListRepository())
 	musicListHandler := handler.NewMusicListHandler(musicListService)
