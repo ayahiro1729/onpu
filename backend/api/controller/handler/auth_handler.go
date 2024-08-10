@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/ayahiro1729/onpu/api/usecase/service"
-
+	
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
@@ -49,14 +49,26 @@ func (h *AuthHandler) AuthenticateUser(c *gin.Context) {
 		return
 	}
 
-	// DBからuser_idを取得（アカウントがない場合は登録）
-	user_id, err := h.authService.FetchUserID(user)
+	// DBからusers.idを取得（アカウントがない場合は登録）
+	userID, err := h.authService.FetchUserID(user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	// フロントエンドにリダイレクト
-	redirectURL := fmt.Sprintf("http://localhost:3000/user/%d", user_id)
+	redirectURL := fmt.Sprintf("http://localhost:3000/user/%d", userID)
 	c.Redirect(http.StatusFound, redirectURL)
+}
+
+// セッションからアクセストークンを取得
+func (h *AuthHandler) GetAccessTokenFromSession(c *gin.Context) {
+	session := sessions.Default(c)
+	token := session.Get("access_token")
+	if token == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"access_token": token})
 }
