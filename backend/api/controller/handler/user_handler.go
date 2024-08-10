@@ -3,9 +3,8 @@ package handler
 import (
 	"strconv"
 
-	"github.com/ayahiro1729/onpu/api/usecase/service"
 	"github.com/ayahiro1729/onpu/api/domain/model"
-
+	"github.com/ayahiro1729/onpu/api/usecase/service"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,7 +19,7 @@ func NewUserHandler(userService *service.UserService) *UserHandler {
 }
 
 // ユーザーを作成
-func (h * UserHandler) PostUser(c *gin.Context)  {
+func (h *UserHandler) PostUser(c *gin.Context) {
 	// ユーザー情報を取得
 	spotifyUser := &model.User{}
 	if err := c.BindJSON(spotifyUser); err != nil {
@@ -54,11 +53,10 @@ func (h *UserHandler) GetUserProfile(c *gin.Context) {
 		return
 	}
 
-	user_id := uint(id_int)
-
+	userID := uint(id_int)
 
 	// セッションからユーザー情報を取得
-	user, err := h.userService.FindUserProfile(user_id)
+	user, err := h.userService.FindUserProfile(userID)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
