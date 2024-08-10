@@ -18,3 +18,7 @@ type MusicList struct {
 	User   User    `gorm:"foreignKey:UserID"`
 	Musics []Music `gorm:"foreignKey:MusicListID"`
 }
+
+func (MusicList) TableName() string {
+	return "music_lists"
+}

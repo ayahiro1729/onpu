@@ -9,6 +9,7 @@ import (
 	"github.com/ayahiro1729/onpu/api/controller/middleware"
 	"github.com/ayahiro1729/onpu/api/infrastructure/database"
 	"github.com/ayahiro1729/onpu/api/infrastructure/repository"
+	"github.com/ayahiro1729/onpu/api/infrastructure/persistence"
 	"github.com/ayahiro1729/onpu/api/usecase/service"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
@@ -80,6 +81,15 @@ func NewServer() (*gin.Engine, error) {
 
 		// ユーザーの情報を取得（プロフィール画面）
 		tag.GET("/user/:user_id", userHandler.GetUserProfile)
+	}
+
+	// DBから最新のmusic listを取得するAPI
+	{
+		musicListPersistence := persistence.NewMusicListPersistence(db)
+		musicListService := service.NewMusicListService(*musicListPersistence)
+		musicListHandler := handler.NewMusicListHandler(musicListService)
+
+		tag.GET("/music/:user_id", musicListHandler.LatestMusicList)
 	}
 
 	for _, route := range r.Routes() {
