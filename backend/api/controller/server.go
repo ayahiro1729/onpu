@@ -68,6 +68,7 @@ func NewServer() (*gin.Engine, error) {
 
 		// Spotifyからのリダイレクトを受け取り、①アクセストークンを取得、②ユーザー情報を取得、③登録またはログイン
 		r.GET("/callback", authHandler.AuthenticateUser)
+		tag.GET("/myuserid", authHandler.GetUserIDFromSession)
 	}
 
 	// ユーザー情報API
@@ -90,6 +91,19 @@ func NewServer() (*gin.Engine, error) {
 		musicListHandler := handler.NewMusicListHandler(musicListService)
 
 		tag.GET("/music/:user_id", musicListHandler.LatestMusicList)
+	}
+
+	// フォロー情報API
+	{
+		followPersistence := persistence.NewFollowPersistence(db)
+		followService := service.NewFollowService(*followPersistence)
+		followHandler := handler.NewFollowHandler(followService)
+
+		// あるユーザーのフォロワーを取得
+		tag.GET("/follower/:user_id", followHandler.GetFollowers)
+
+		// あるユーザーのフォロー中ユーザーを取得
+		tag.GET("/followee/:user_id", followHandler.GetFollowees)
 	}
 
 	for _, route := range r.Routes() {
