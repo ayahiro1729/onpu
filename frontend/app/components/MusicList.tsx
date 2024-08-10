@@ -3,9 +3,8 @@ import { Carousel, Card } from "~/components/ui/apple-cards-carousel";
 import { Loader2 } from "lucide-react"
  
 import { Button } from "~/components/ui/button"
-import { json, LoaderFunction } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
-import { useParams } from "@remix-run/react";
+import { ActionFunctionArgs, json, LoaderFunctionArgs } from '@remix-run/node';
+import { Form, useLoaderData } from '@remix-run/react';
 
 type Music = {
   music_id: number,
@@ -22,9 +21,27 @@ type MusicCard = {
   content: string;
 };
 
-export const loader: LoaderFunction = async () => {
-  const { user_id } = useParams();
-  const response = await fetch(`https://localhost:8080/api/v1/music/${user_id}`);
+export const action = async ({
+  params,
+}: ActionFunctionArgs) => {
+  const response = await fetch(`https://localhost:8080/api/v1/music/${params.userId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to update music list');
+  }
+
+  return json({ success: true });
+};
+
+
+export const loader = async ({ params }: LoaderFunctionArgs) => {
+  const user_id = params.userId;
+  const response = await fetch(`https://localhost:8080/api/v1/user/${user_id}`);
   const data = await response.json();
 
   const musicList = data.music_list;
@@ -37,11 +54,11 @@ export const loader: LoaderFunction = async () => {
     };
   });
 
-  return json({ musicCardList });
+  return json({ user_id, musicCardList });
 };
 
 export function MusicList() {
-  // const { musicCardList } = useLoaderData<typeof loader>();
+  const { user_id, musicCardList } = useLoaderData<typeof loader>();
   const musics = musicCardList.map((card: MusicCard, index: number) => (
     <a href={card.content}>
       <Card key={card.src} card={card} index={index} />
@@ -52,39 +69,14 @@ export function MusicList() {
     <div className="flex flex-col gap-4">
       <div className="flex justify-between items-center">
         <p className='flex items-center text-2xl'>Favorite Music</p>
-        <Button className="px-2 py-1 bg-[#1ED760]">
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            <p>Update</p>
-        </Button>
+        <Form key={user_id} id="contact-form" method="post">
+          <Button className="px-2 py-1 bg-[#1ED760]">
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <p>Update</p>
+          </Button>
+        </Form>
       </div>
       <Carousel items={musics} />
     </div>
   );
 }
-
-const musicCardList: MusicCard[] = [
-  {
-    src: "/OnpuLogo.jpg",
-    title: "Onpu",
-    category: "Onpu",
-    content: "https://open.spotify.com/track/4uLU6hMCjMI75M1A2tKUQC"
-  },
-  {
-    src: "/OnpuLogo.jpg",
-    title: "Onpu",
-    category: "Onpu",
-    content: "https://open.spotify.com/track/4uLU6hMCjMI75M1A2tKUQC"
-  },
-  {
-    src: "/OnpuLogo.jpg",
-    title: "Onpu",
-    category: "Onpu",
-    content: "https://open.spotify.com/track/4uLU6hMCjMI75M1A2tKUQC"
-  },
-  {
-    src: "/OnpuLogo.jpg",
-    title: "Onpu",
-    category: "Onpu",
-    content: "https://open.spotify.com/track/4uLU6hMCjMI75M1A2tKUQC"
-  }
-];
