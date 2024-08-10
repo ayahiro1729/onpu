@@ -9,6 +9,7 @@ import (
 	"github.com/ayahiro1729/onpu/api/controller/middleware"
 	"github.com/ayahiro1729/onpu/api/infrastructure/database"
 	"github.com/ayahiro1729/onpu/api/infrastructure/repository"
+	"github.com/ayahiro1729/onpu/api/infrastructure/persistence"
 	"github.com/ayahiro1729/onpu/api/usecase/service"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
@@ -87,12 +88,6 @@ func NewServer() (*gin.Engine, error) {
 
 		tag.GET("/music/:user_id", musicListHandler.LatestMusicList)
 	}
-
-	log.Printf("Starting music list routing...")
-	musicListService := service.NewMusicListUsecase(service.NewMusicListRepository())
-	musicListHandler := handler.NewMusicListHandler(musicListService)
-	tag.GET("/music/:user_id", musicListHandler.GetLatestMusicList)
-	fmt.Println("Music list routes have been set up.")
 
 	for _, route := range r.Routes() {
 		fmt.Printf("Method: %s - Path: %s\n", route.Method, route.Path)
