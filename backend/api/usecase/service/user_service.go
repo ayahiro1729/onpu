@@ -41,3 +41,11 @@ func (s *UserService) RegisterOrLogin(spotifyUser *model.User) (*model.User, err
 
 	return newUser, nil
 }
+
+func (s *UserService) FindUserProfile(id uint) (*model.User, error) {
+	user, err := s.userRepository.FindUserByID(id)
+	if err != nil {
+		return nil, errors.New("failed to find user")
+	}
+	return user, nil
+}

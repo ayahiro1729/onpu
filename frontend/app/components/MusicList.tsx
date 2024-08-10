@@ -1,97 +1,82 @@
-"use client";
 import React from "react";
 import { Carousel, Card } from "~/components/ui/apple-cards-carousel";
 import { Loader2 } from "lucide-react"
  
 import { Button } from "~/components/ui/button"
+import { ActionFunctionArgs, json, LoaderFunctionArgs } from '@remix-run/node';
+import { Form, useLoaderData } from '@remix-run/react';
+
+type Music = {
+  music_id: number,
+  name: string,
+  image: string,
+  artist_name: string,
+  spotify_link: string
+};
+
+type MusicCard = {
+  src: string;
+  title: string;
+  category: string;
+  content: string;
+};
+
+export const action = async ({
+  params,
+}: ActionFunctionArgs) => {
+  const response = await fetch(`https://localhost:8080/api/v1/music/${params.userId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to update music list');
+  }
+
+  return json({ success: true });
+};
+
+
+export const loader = async ({ params }: LoaderFunctionArgs) => {
+  const user_id = params.userId;
+  const response = await fetch(`https://localhost:8080/api/v1/user/${user_id}`);
+  const data = await response.json();
+
+  const musicList = data.music_list;
+  const musicCardList = musicList.map((music: Music) => {
+    return {
+      src: music.image,
+      title: music.name,
+      category: music.artist_name,
+      content: music.spotify_link
+    };
+  });
+
+  return json({ user_id, musicCardList });
+};
 
 export function MusicList() {
-  const cards = data.map((card, index) => (
-    <Card key={card.src} card={card} index={index} />
+  const { user_id, musicCardList } = useLoaderData<typeof loader>();
+  const musics = musicCardList.map((card: MusicCard, index: number) => (
+    <a href={card.content}>
+      <Card key={card.src} card={card} index={index} />
+    </a>
   ));
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex justify-between items-center">
         <p className='flex items-center text-2xl'>Favorite Music</p>
-        <Button className="px-2 py-1 bg-[#1ED760]">
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            <p>Update</p>
-        </Button>
+        <Form key={user_id} id="contact-form" method="post">
+          <Button className="px-2 py-1 bg-[#1ED760]">
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <p>Update</p>
+          </Button>
+        </Form>
       </div>
-      <Carousel items={cards} />
+      <Carousel items={musics} />
     </div>
   );
 }
-
-const DummyContent = () => {
-  return (
-    <>
-      {[...new Array(3).fill(1)].map((_, index) => {
-        return (
-          <div
-            key={"dummy-content" + index}
-            className="bg-[#F5F5F7] dark:bg-neutral-800 p-8 md:p-14 rounded-3xl mb-4"
-          >
-            <p className="text-neutral-600 dark:text-neutral-400 text-base md:text-2xl font-sans max-w-3xl mx-auto">
-              <span className="font-bold text-neutral-700 dark:text-neutral-200">
-                The first rule of Apple club is that you boast about Apple club.
-              </span>{" "}
-              Keep a journal, quickly jot down a grocery list, and take amazing
-              class notes. Want to convert those notes to text? No problem.
-              Langotiya jeetu ka mara hua yaar is ready to capture every
-              thought.
-            </p>
-            <img
-              src="https://assets.aceternity.com/macbook.png"
-              alt="Macbook mockup from Aceternity UI"
-              height="500"
-              width="500"
-              className="md:w-1/2 md:h-1/2 h-full w-full mx-auto object-contain"
-            />
-          </div>
-        );
-      })}
-    </>
-  );
-};
-
-const data = [
-  {
-    category: "Artificial Intelligence",
-    title: "You can do more with AI.",
-    src: "https://images.unsplash.com/photo-1593508512255-86ab42a8e620?q=80&w=3556&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    content: <DummyContent />,
-  },
-  {
-    category: "Productivity",
-    title: "Enhance your productivity.",
-    src: "https://images.unsplash.com/photo-1531554694128-c4c6665f59c2?q=80&w=3387&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    content: <DummyContent />,
-  },
-  {
-    category: "Product",
-    title: "Launching the new Apple Vision Pro.",
-    src: "https://images.unsplash.com/photo-1713869791518-a770879e60dc?q=80&w=2333&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    content: <DummyContent />,
-  },
-
-  {
-    category: "Product",
-    title: "Maps for your iPhone 15 Pro Max.",
-    src: "https://images.unsplash.com/photo-1599202860130-f600f4948364?q=80&w=2515&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    content: <DummyContent />,
-  },
-  {
-    category: "iOS",
-    title: "Photography just got better.",
-    src: "https://images.unsplash.com/photo-1602081957921-9137a5d6eaee?q=80&w=2793&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    content: <DummyContent />,
-  },
-  {
-    category: "Hiring",
-    title: "Hiring for a Staff Software Engineer",
-    src: "https://images.unsplash.com/photo-1511984804822-e16ba72f5848?q=80&w=2048&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    content: <DummyContent />,
-  },
-];

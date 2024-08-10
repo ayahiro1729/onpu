@@ -2,13 +2,16 @@ package controller
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/ayahiro1729/onpu/api/config"
 	"github.com/ayahiro1729/onpu/api/controller/handler"
 	"github.com/ayahiro1729/onpu/api/controller/middleware"
+	"github.com/ayahiro1729/onpu/api/infrastructure/database"
+	"github.com/ayahiro1729/onpu/api/infrastructure/repository"
 	"github.com/ayahiro1729/onpu/api/usecase/service"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/exp/slog"
 )
@@ -37,20 +40,44 @@ func NewServer() (*gin.Engine, error) {
 	// setting a logger
 	r.Use(middleware.Cors(), middleware.Logger(logger))
 
+	// setting a session
+	store := cookie.NewStore([]byte("secret"))
+	r.Use(sessions.Sessions("mysession", store))
+
+	// setting a database
+	db := database.NewDB()
+	if db != nil {
+		fmt.Println("PostgreSQLに接続成功")
+	} else {
+		fmt.Println("PostgreSQLに接続失敗")
+	}
+
 	tag := r.Group(apiVersion)
+	// ヘルスチェックAPI
 	{
 		systemHandler := handler.NewSystemHandler()
+
 		tag.GET("/system/health", systemHandler.Health)
 	}
 
-	log.Printf("Starting auth routing...")
-	authService := service.NewAuthService(spotifyConfig)
-	authHandler := handler.NewAuthHandler(authService)
-	// Spotifyの認証画面にリダイレクト
-	tag.GET("/spotify", authHandler.RedirectToSpotifyAuth)
-	// Spotifyからのリダイレクトを受け取り、アクセストークンを取得
-	tag.GET("/spotify/callback", authHandler.GetAccessTokenFromSpotify)
-	fmt.Println("Auth routes have been set up.")
+	// Spotify認証API
+	{
+		authService := service.NewAuthService(spotifyConfig)
+		authHandler := handler.NewAuthHandler(authService)
+
+		// Spotifyからのリダイレクトを受け取り、アクセストークンを取得
+		r.GET("/callback", authHandler.ExchangeCodeForToken)
+	}
+
+	// ユーザー情報API
+	{
+		userRepository := repository.NewUserRepository(db)
+		userService := service.NewUserService(*userRepository)
+		userHandler := handler.NewUserHandler(userService)
+
+		// ユーザーの情報を取得（プロフィール画面）
+		tag.GET("/user/:user_id", userHandler.GetUserProfile)
+	}
 
 	log.Printf("Starting music list routing...")
 	musicListService := service.NewMusicListUsecase(service.NewMusicListRepository())

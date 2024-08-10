@@ -18,9 +18,14 @@ type User struct {
 	InstagramLink string
 	CreatedAt     time.Time `gorm:"autoCreateTime"`
 	UpdatedAt     time.Time `gorm:"autoUpdateTime"`
+	DeletedAt     time.Time `gorm:"autoDeleteTime"`
 
 	// Relations
 	MusicLists []MusicList `gorm:"foreignKey:UserID"`
 	Followers  []Follow    `gorm:"foreignKey:followee_id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Following  []Follow    `gorm:"foreignKey:followee_id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+}
+
+func (User) TableName() string {
+	return "users"
 }

@@ -1,15 +1,17 @@
 package service
 
 import (
-	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
 	"net/http"
-	"time"
+	"net/url"
+	"strings"
 
 	"github.com/ayahiro1729/onpu/api/config"
 	"github.com/ayahiro1729/onpu/api/domain/model"
-	"github.com/golang-jwt/jwt/v5"
 )
 
 type AuthService struct {
@@ -22,37 +24,38 @@ func NewAuthService(spotifyConfig *config.SpotifyConfig) *AuthService {
 	}
 }
 
-func (s *AuthService) GetSpotifyAuthURL() string {
-	return "https://accounts.spotify.com/authorize?client_id=" + s.spotifyConfig.ClientID +
-		"&response_type=code&redirect_uri=" + s.spotifyConfig.RedirectURI +
-		"&scope=user-read-private user-read-email"
-}
-
 // Spotifyの認証コードを使用してアクセストークンを取得
-func (s *AuthService) GetSpotifyToken(code string) (string, error) {
+func (s *AuthService) FetchSpotifyToken(code string) (string, error) {
 	uri := "https://accounts.spotify.com/api/token"
-
-	reqBody := map[string]string{
-		"grant_type":    "authorization_code",
-		"code":          code,
-		"redirect_uri":  s.spotifyConfig.RedirectURI,
-		"client_id":     s.spotifyConfig.ClientID,
-		"client_secret": s.spotifyConfig.ClientSecret,
-	}
-
-	reqJSON, err := json.Marshal(reqBody)
+	cfg, err := config.NewSpotifyConfig()
 	if err != nil {
 		return "", err
 	}
 
-	resp, err := http.Post(uri, "application/x-www-form-urlencoded", bytes.NewBuffer(reqJSON))
+	data := url.Values{}
+	data.Set("grant_type", "authorization_code")
+	data.Set("code", code)
+	data.Set("redirect_uri", cfg.RedirectURI)
+
+	req, err := http.NewRequest("POST", uri, strings.NewReader(data.Encode()))
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to create request: %w", err)
+	}
+
+	auth := base64.StdEncoding.EncodeToString([]byte( cfg.ClientID + ":" + cfg.ClientSecret))
+	req.Header.Set("Authorization", "Basic "+auth)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("failed to send request: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", errors.New("failed to exchange authorization code for token")
+		bodyBytes, _ := io.ReadAll(resp.Body)
+    return "", fmt.Errorf("failed to exchange authorization code for token. Status: %d, Body: %s", resp.StatusCode, string(bodyBytes))
 	}
 
 	var respBody struct {
@@ -68,7 +71,7 @@ func (s *AuthService) GetSpotifyToken(code string) (string, error) {
 
 // Spotifyのアクセストークンを使用してユーザ情報を取得
 func (s *AuthService) GetSpotifyUser(token string) (*model.User, error) {
-	req, err := http.NewRequest("GET", "https://api.spotify.com/v1/me", http.NoBody)
+	req, err := http.NewRequest("GET", "https://api.spotify.com/v1/me", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -108,15 +111,4 @@ func (s *AuthService) GetSpotifyUser(token string) (*model.User, error) {
 	}
 
 	return user, nil
-}
-
-// Spotifyのユーザ情報を使用してJWTトークンを生成
-func (s *AuthService) GenerateJWTToken(user *model.User) (string, error) {
-	claims := jwt.MapClaims{
-		"user_id": user.SpotifyID,
-		"exp":     time.Now().Add(time.Hour * 72).Unix(),
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(s.spotifyConfig.JWTSecret))
 }

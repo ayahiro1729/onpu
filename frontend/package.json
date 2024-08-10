@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.0",
+    "@radix-ui/react-dialog": "^1.1.1",
+    "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@remix-run/css-bundle": "^2.11.0",
     "@remix-run/node": "^2.11.0",
@@ -20,6 +22,7 @@
     "@tabler/icons-react": "^3.11.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "dotenv": "^16.4.5",
     "framer-motion": "^11.3.21",
     "isbot": "^4.1.0",
     "lucide-react": "^0.424.0",
