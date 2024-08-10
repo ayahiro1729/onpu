@@ -8,11 +8,12 @@ import (
 	"github.com/ayahiro1729/onpu/api/controller/handler"
 	"github.com/ayahiro1729/onpu/api/controller/middleware"
 	"github.com/ayahiro1729/onpu/api/infrastructure/database"
-	"github.com/ayahiro1729/onpu/api/infrastructure/repository"
 	"github.com/ayahiro1729/onpu/api/infrastructure/persistence"
+	"github.com/ayahiro1729/onpu/api/infrastructure/repository"
 	"github.com/ayahiro1729/onpu/api/usecase/service"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
+	
 	"github.com/gin-gonic/gin"
 	"golang.org/x/exp/slog"
 )
@@ -68,6 +69,9 @@ func NewServer() (*gin.Engine, error) {
 
 		// Spotifyからのリダイレクトを受け取り、①アクセストークンを取得、②ユーザー情報を取得、③登録またはログイン
 		r.GET("/callback", authHandler.AuthenticateUser)
+
+		// セッションからアクセストークンを取得
+		tag.GET("/session/token", authHandler.GetAccessTokenFromSession)
 	}
 
 	// ユーザー情報API
@@ -90,6 +94,9 @@ func NewServer() (*gin.Engine, error) {
 		musicListHandler := handler.NewMusicListHandler(musicListService)
 
 		tag.GET("/music/:user_id", musicListHandler.LatestMusicList)
+
+		// ユーザーのmusic listを作成
+		tag.POST("/music", musicListHandler.PostMusicList)
 	}
 
 	for _, route := range r.Routes() {
