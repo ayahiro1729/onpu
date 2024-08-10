@@ -17,13 +17,13 @@ func NewFollowPersistence(db *gorm.DB) *FollowPersistence {
 	return &FollowPersistence{db: db}
 }
 
-func (p *FollowPersistence) GetFollowers(userID int) (*repository.FollowersDTO, error) {
+func (p *FollowPersistence) GetFollowers(userID int) (*[]repository.FollowUserDTO, error) {
 	followers := []repository.FollowUserDTO{}
 
 	err := p.db.Model(&model.Follow{}).
-			Select("users.user_id", "users.user_name", "users.user_name", "users.display_name", "users.icon_image", "follows.updated_at").
-			Joins("left join users on follows.followee_id = users.user_id").
-			Where("follows.folowee_id = ?", userID).
+			Select("users.id", "users.user_name", "users.user_name", "users.display_name", "users.icon_image", "follows.updated_at").
+			Joins("left join users on follows.followee_id = users.id").
+			Where("follows.followee_id = ?", userID).
 			Scan(&followers).Error
 	
 	if err != nil {
@@ -31,18 +31,16 @@ func (p *FollowPersistence) GetFollowers(userID int) (*repository.FollowersDTO, 
 		return nil, err
 	}
 
-	return &repository.FollowersDTO{
-		Followers: followers,
-	}, nil
+	return &followers, nil
 }
 
-func (p *FollowPersistence) GetFollowees(userID int) (*repository.FolloweesDTO, error) {
+func (p *FollowPersistence) GetFollowees(userID int) (*[]repository.FollowUserDTO, error) {
 	followees := []repository.FollowUserDTO{}
 
 	err := p.db.Model(&model.Follow{}).
-			Select("users.user_id, users.user_name, users.user_name, users.display_name, users.icon_image, follows.updated_at").
-			Joins("left join users on follows.follower_id = users.user_id").
-			Where("follows.folower_id = ?", userID).
+			Select("users.id, users.user_name, users.user_name, users.display_name, users.icon_image, follows.updated_at").
+			Joins("left join users on follows.follower_id = users.id").
+			Where("follows.follower_id = ?", userID).
 			Scan(&followees).Error
 	
 	if err != nil {
@@ -50,7 +48,5 @@ func (p *FollowPersistence) GetFollowees(userID int) (*repository.FolloweesDTO, 
 		return nil, err
 	}
 
-	return &repository.FolloweesDTO{
-		Followees: followees,
-	}, nil
+	return &followees, nil
 }
