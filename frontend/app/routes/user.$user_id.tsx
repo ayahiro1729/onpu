@@ -3,12 +3,12 @@ import { Friends } from "~/components/Friends";
 import { MusicList } from "~/components/MusicList";
 import { json, LoaderFunction } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
-import { useParams } from "@remix-run/react";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 
 
-export const loader: LoaderFunction = async () => {
-  const { user_id } = useParams();
-  const response = await fetch(`https://localhost:8080/api/v1/user/${user_id}`);
+export const loader: LoaderFunction = async ({ params }: LoaderFunctionArgs) => {
+  const user_id = params.userId;
+  const response = await fetch(`http://localhost:8080/api/v1/user/${user_id}`);
   const data = await response.json();
 
   const displayName = data.display_name;
