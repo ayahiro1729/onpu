@@ -2,15 +2,39 @@ import { json, LoaderFunctionArgs } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 import { Profile } from "~/components/Profile";
 import { MusicList } from "~/components/MusicList";
-import { Music, UserInfo } from '~/types/types';
+import { Follower, Music, UserInfo } from '~/types/types';
+import { Followings } from '~/components/Followings';
+import { Followers } from '~/components/Followers';
+import { Header } from '~/components/Header';
+import { Button } from '~/components/ui/button';
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   const userId = params.user_id;
   const userResponse = await fetch(`http://backend:8080/api/v1/user/${userId}`);
+  if (!userResponse.ok) {
+    throw new Error (`Failed to fetch user data: ${userResponse.statusText}`)
+  }
   const userData = await userResponse.json();
 
   const musicResponse = await fetch(`http://backend:8080/api/v1/music/${userId}`);
+  if (!musicResponse.ok) {
+    throw new Error (`Failed to fetch music data: ${musicResponse.statusText}`)
+  }
   const musicData = await musicResponse.json();
+
+  const followerResponse = await fetch(`http://backend:8080/api/v1/follower/${userId}`);
+  if (!followerResponse.ok) {
+    throw new Error (`Failed to fetch follower data: ${followerResponse.statusText}`)
+  }
+  const followerData = await followerResponse.json();
+
+  const followingsResponse = await fetch(`http://backend:8080/api/v1/followee/${userId}`);
+  if (!followingsResponse.ok) {
+    throw new Error (`Failed to fetch followings data: ${followingsResponse.statusText}`)
+  }
+  const followingsData = await followingsResponse.json();
+
+  
 
   const userInfo: UserInfo = {
     displayName: userData.user.DisplayName,
@@ -28,14 +52,56 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
     };
   });
 
-  return json({ userInfo, musicList });
+  const followers = followerData.followers.map((follower: Follower) => {
+    return {
+      userId: follower.userId,
+      displayName: follower.displayName,
+      iconImage: follower.iconImage,
+    };
+  });
+
+  const followings = followingsData.followees.map((following: Follower) => {
+    return {
+      userId: following.userId,
+      displayName: following.displayName,
+      iconImage: following.iconImage,
+    };
+  });
+
+  return json({ userInfo, musicList, followers, followings });
 };
 
 export default function User() {
-  const { userInfo, musicList } = useLoaderData<typeof loader>();
+  const { userInfo, musicList, followers, followings, myUserId } = useLoaderData<typeof loader>();
+  const [myuserid, setMyuserid] = useState("")
+  useEffect(() => {
+    const fetchData = async () => {
+      
+        const response = await fetch(`http://backend:8080/api/v1/myuserid`, { credentials: "include" });
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const result = await response.json();
+        setMyuserid(result);
+      
+    };
+
+    fetchData();
+  }, []); // 
+  
+  const  getMyUserId = async () => {
+    const myUserIdResponse = await fetch(`http://backend:8080/api/v1/myuserid`, { credentials: "include" })
+    if (!myUserIdResponse.ok) {
+      throw new Error (`Failed to fetch my user id: ${myUserIdResponse.statusText}`)
+    }
+    const myUserId = await myUserIdResponse.json();
+    console.log(myUserId)
+  }
 
   return (
-    <div className="font-sans p-4 pt-20 flex flex-col gap-8">
+    <div>
+      <Header />
+      <div className="font-sans p-4 pt-20 flex flex-col gap-8">
       <Profile 
         displayName={userInfo.displayName}
         iconImage={userInfo.iconImage}
@@ -43,8 +109,18 @@ export default function User() {
         instagramLink={userInfo.instagramLink}
       />
       <MusicList musicList={musicList}/>
-      {/* <Followings />
-      <Followers /> */}
+      <Followings followings={followings}/>
+      <Followers followers={followers}/>
+      <Button onClick={getMyUserId}>get my user id</Button>
+    </div>
     </div>
   );
 }
+
+function useState(arg0: string): [any, any] {
+  throw new Error('Function not implemented.');
+}
+function useEffect(arg0: () => void, arg1: never[]) {
+  throw new Error('Function not implemented.');
+}
+
