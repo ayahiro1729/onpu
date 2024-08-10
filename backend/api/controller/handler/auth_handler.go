@@ -56,7 +56,31 @@ func (h *AuthHandler) AuthenticateUser(c *gin.Context) {
 		return
 	}
 
+	// user_idをSessionに保存
+	session.Set("user_id", user_id)
+	if err := session.Save(); err != nil {
+		fmt.Println("Error saving my user id to session: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	fmt.Println("My user id is saved to session: %d", user_id)
+
 	// フロントエンドにリダイレクト
 	redirectURL := fmt.Sprintf("http://localhost:3000/user/%d", user_id)
 	c.Redirect(http.StatusFound, redirectURL)
+}
+
+func (h *AuthHandler) GetUserIDFromSession(c *gin.Context) {
+	session := sessions.Default(c)
+	userID := session.Get("user_id")
+
+	if userID == nil {
+		fmt.Println("Error getting my user id from session:")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	fmt.Println("Retrieved user_id from session:", userID)
+
+	c.JSON(http.StatusOK, gin.H{"user_id": userID})
 }
