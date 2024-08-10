@@ -11,7 +11,6 @@ export const loader: LoaderFunction = async () => {
   const response = await fetch(`https://localhost:8080/api/v1/user/${user_id}`);
   const data = await response.json();
 
-  // ビットコインの価格を取得
   const displayName = data.display_name;
   const iconImage = data.icon_image;
   const xLink = data.x_link;
