@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/ayahiro1729/onpu/api/domain/model"
+
 	"gorm.io/gorm"
 )
 

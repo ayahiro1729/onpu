@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/ayahiro1729/onpu/api/usecase/service"
-	
+
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
@@ -21,7 +21,7 @@ func NewAuthHandler(authService *service.AuthService) *AuthHandler {
 }
 
 // Spotifyからのリダイレクトを受け取り、アクセストークンを取得
-func (h *AuthHandler) ExchangeCodeForToken(c *gin.Context) {
+func (h *AuthHandler) AuthenticateUser(c *gin.Context) {
 	code := c.Query("code")
 	if code == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Authorization code not provided"})
@@ -42,7 +42,21 @@ func (h *AuthHandler) ExchangeCodeForToken(c *gin.Context) {
 		return
 	}
 
+	// ユーザー情報を取得
+	user, err := h.authService.FetchSpotifyUser(token)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// DBからuser_idを取得（アカウントがない場合は登録）
+	user_id, err := h.authService.FetchUserID(user)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
 	// フロントエンドにリダイレクト
-	redirectURL := fmt.Sprintf("http://localhost:3000/mypage?access_token=%s", token)
+	redirectURL := fmt.Sprintf("http://localhost:3000/user/%d", user_id)
 	c.Redirect(http.StatusFound, redirectURL)
 }

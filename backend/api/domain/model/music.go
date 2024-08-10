@@ -21,3 +21,7 @@ type Music struct {
 	// Relations
 	MusicList MusicList `gorm:"foreignKey:MusicListID"`
 }
+
+func (Music) TableName() string {
+	return "musics"
+}
