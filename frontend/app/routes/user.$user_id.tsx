@@ -2,7 +2,9 @@ import { json, LoaderFunctionArgs } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 import { Profile } from "~/components/Profile";
 import { MusicList } from "~/components/MusicList";
-import { Music, UserInfo } from '~/types/types';
+import { Follower, Music, UserInfo } from '~/types/types';
+import { Followings } from '~/components/Followings';
+import { Followers } from '~/components/Followers';
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   const userId = params.user_id;
@@ -11,6 +13,12 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
 
   const musicResponse = await fetch(`http://backend:8080/api/v1/music/${userId}`);
   const musicData = await musicResponse.json();
+
+  const followerResponse = await fetch(`http://backend:8080/api/v1/follower/${userId}`);
+  const followerData = await followerResponse.json();
+
+  const followingsResponse = await fetch(`http://backend:8080/api/v1/followee/${userId}`);
+  const followingsData = await followingsResponse.json();
 
   const userInfo: UserInfo = {
     displayName: userData.user.DisplayName,
@@ -28,11 +36,27 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
     };
   });
 
-  return json({ userInfo, musicList });
+  const followers = followerData.followers.map((follower: Follower) => {
+    return {
+      userId: follower.userId,
+      displayName: follower.displayName,
+      iconImage: follower.iconImage,
+    };
+  });
+
+  const followings = followingsData.followees.map((following: Follower) => {
+    return {
+      userId: following.userId,
+      displayName: following.displayName,
+      iconImage: following.iconImage,
+    };
+  });
+
+  return json({ userInfo, musicList, followers, followings });
 };
 
 export default function User() {
-  const { userInfo, musicList } = useLoaderData<typeof loader>();
+  const { userInfo, musicList, followers, followings  } = useLoaderData<typeof loader>();
 
   return (
     <div className="font-sans p-4 pt-20 flex flex-col gap-8">
@@ -43,8 +67,8 @@ export default function User() {
         instagramLink={userInfo.instagramLink}
       />
       <MusicList musicList={musicList}/>
-      {/* <Followings />
-      <Followers /> */}
+      <Followings followings={followings}/>
+      <Followers followers={followers}/>
     </div>
   );
 }
