@@ -20,13 +20,12 @@ func NewFollowPersistence(db *gorm.DB) *FollowPersistence {
 func (p *FollowPersistence) GetFollowers(userID int) (*[]repository.FollowUserDTO, error) {
 	followers := []repository.FollowUserDTO{}
 
-	err := p.db.Model(&model.Follow{}).
+	if err := p.db.Model(&model.Follow{}).
 			Select("users.id", "users.user_name", "users.user_name", "users.display_name", "users.icon_image", "follows.updated_at").
 			Joins("left join users on follows.followee_id = users.id").
 			Where("follows.followee_id = ?", userID).
-			Scan(&followers).Error
-	
-	if err != nil {
+			Scan(&followers).Error;
+	err != nil {
 		fmt.Printf("error during select from follows when getting followers (persistence): %v\n", err)
 		return nil, err
 	}
@@ -37,13 +36,12 @@ func (p *FollowPersistence) GetFollowers(userID int) (*[]repository.FollowUserDT
 func (p *FollowPersistence) GetFollowees(userID int) (*[]repository.FollowUserDTO, error) {
 	followees := []repository.FollowUserDTO{}
 
-	err := p.db.Model(&model.Follow{}).
+	if err := p.db.Model(&model.Follow{}).
 			Select("users.id, users.user_name, users.user_name, users.display_name, users.icon_image, follows.updated_at").
 			Joins("left join users on follows.follower_id = users.id").
 			Where("follows.follower_id = ?", userID).
-			Scan(&followees).Error
-	
-	if err != nil {
+			Scan(&followees).Error;
+	err != nil {
 		fmt.Printf("error during select from follows when getting followees (persistence): %v\n", err)
 		return nil, err
 	}
