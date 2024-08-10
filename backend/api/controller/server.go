@@ -99,6 +99,19 @@ func NewServer() (*gin.Engine, error) {
 		tag.POST("/music", musicListHandler.PostMusicList)
 	}
 
+	// フォロー情報API
+	{
+		followPersistence := persistence.NewFollowPersistence(db)
+		followService := service.NewFollowService(*followPersistence)
+		followHandler := handler.NewFollowHandler(followService)
+
+		// あるユーザーのフォロワーを取得
+		tag.GET("/follower/:user_id", followHandler.GetFollowers)
+
+		// あるユーザーのフォロー中ユーザーを取得
+		tag.GET("/followee/:user_id", followHandler.GetFollowees)
+	}
+
 	for _, route := range r.Routes() {
 		fmt.Printf("Method: %s - Path: %s\n", route.Method, route.Path)
 	}
