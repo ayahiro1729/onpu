@@ -1,16 +1,9 @@
 import React, { useState } from 'react'
 import { Button } from '~/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
 import X from '/x_logo.png'
 import Instagram from '/instagram_logo.png'
 import { Link } from '@remix-run/react'
-
-type ProfileProps = {
-  displayName?: string
-  iconImage?: string
-  xLink?: string
-  instagramLink?: string
-}
+import { ProfileProps } from '~/types/types'
 
 const Profile: React.FC<ProfileProps> = ({displayName, iconImage, xLink, instagramLink}) => {
   const [isFollowed, setIsFollowed] = useState<boolean>(false)
