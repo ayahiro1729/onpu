@@ -2,10 +2,6 @@ package repository
 
 import (
 	"time"
-
-	"domain/model"
-
-	"gorm.io/gorm"
 )
 
 type MusicDTO struct {
