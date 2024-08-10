@@ -54,7 +54,10 @@ func (s *AuthService) FetchSpotifyToken(code string) (string, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		bodyBytes, _ := io.ReadAll(resp.Body)
+		bodyBytes, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return "", fmt.Errorf("failed to read response body: %w", err)
+		}
 		return "", fmt.Errorf("failed to exchange authorization code for token. Status: %d, Body: %s", resp.StatusCode, string(bodyBytes))
 	}
 
@@ -72,7 +75,7 @@ func (s *AuthService) FetchSpotifyToken(code string) (string, error) {
 // Spotifyのアクセストークンを使用してユーザ情報を取得
 func (s *AuthService) FetchSpotifyUser(token string) (*model.User, error) {
 	uri := "https://api.spotify.com/v1/me"
-	req, err := http.NewRequest("GET", uri, nil)
+	req, err := http.NewRequest("GET", uri, http.NoBody)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +88,10 @@ func (s *AuthService) FetchSpotifyUser(token string) (*model.User, error) {
 	}
 	defer resp.Body.Close()
 
-	bodyBytes, _ := io.ReadAll(resp.Body)
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("failed to fetch user profile. Status: %d, Body: %s", resp.StatusCode, string(bodyBytes))
 	}
@@ -134,7 +140,8 @@ func (s *AuthService) FetchSpotifyUser(token string) (*model.User, error) {
 	return user, nil
 }
 
-func (s *AuthService) FetchUserID(user *model.User) (user_id uint, err error) {
+// DBからuser_idを取得（アカウントがない場合は登録）
+func (s *AuthService) FetchUserID(user *model.User) (userID uint, err error) {
 	uri := "http://localhost:8080/api/v1/user"
 	client := &http.Client{}
 	jsonData, err := json.Marshal(user)
@@ -156,7 +163,10 @@ func (s *AuthService) FetchUserID(user *model.User) (user_id uint, err error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return 0, fmt.Errorf("failed to read response body: %w", err)
+		}
 		return 0, fmt.Errorf("failed to create user. Status: %d, Body: %s", resp.StatusCode, string(body))
 	}
 
