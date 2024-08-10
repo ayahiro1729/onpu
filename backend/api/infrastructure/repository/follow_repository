@@ -1,0 +1,25 @@
+package repository
+
+type FollowUserDTO struct {
+	UserID		int		`json:"user_id"`
+	UserName	string	`json:"user_name"`
+	DisplayName	string	`json:"display_name"`
+	IconImage	string	`json:"icon_image"`
+	UpdatedAt	string	`json:"created_at"`
+}
+
+type FollowersDTO struct {
+	Followers	[]FollowUserDTO	`json:"followers"`
+}
+
+type FolloweesDTO struct {
+	Followees	[]FollowUserDTO	`json:"followees"`
+}
+
+type FollowersRepository interface {
+	GetFollowers(userID int) (*FollowersDTO, error)
+}
+
+type FolloweesRepository interface {
+	GetFollowers(userID int) (*FolloweesDTO, error)
+}
