@@ -5,6 +5,7 @@ import { MusicList } from "~/components/MusicList";
 import { Follower, Music, UserInfo } from '~/types/types';
 import { Followings } from '~/components/Followings';
 import { Followers } from '~/components/Followers';
+import { Header } from '~/components/Header';
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   const userId = params.user_id;
@@ -59,7 +60,9 @@ export default function User() {
   const { userInfo, musicList, followers, followings  } = useLoaderData<typeof loader>();
 
   return (
-    <div className="font-sans p-4 pt-20 flex flex-col gap-8">
+    <div>
+      <Header />
+      <div className="font-sans p-4 pt-20 flex flex-col gap-8">
       <Profile 
         displayName={userInfo.displayName}
         iconImage={userInfo.iconImage}
@@ -69,6 +72,7 @@ export default function User() {
       <MusicList musicList={musicList}/>
       <Followings followings={followings}/>
       <Followers followers={followers}/>
+    </div>
     </div>
   );
 }
