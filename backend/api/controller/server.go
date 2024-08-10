@@ -95,14 +95,14 @@ func NewServer() (*gin.Engine, error) {
 	// フォロー情報API
 	{
 		followPersistence := persistence.NewFollowPersistence(db)
-		followService := service.FollowService(*followPersistence)
-		followHandler := handler.FollowHandler(followService)
+		followService := service.NewFollowService(*followPersistence)
+		followHandler := handler.NewFollowHandler(followService)
 
 		// あるユーザーのフォロワーを取得
 		tag.GET("/follower/:user_id", followHandler.GetFollowers)
 
 		// あるユーザーのフォロー中ユーザーを取得
-		tag.GET("/follower/:user_id", followHandler.GetFollowees)
+		tag.GET("/followee/:user_id", followHandler.GetFollowees)
 	}
 
 	for _, route := range r.Routes() {
