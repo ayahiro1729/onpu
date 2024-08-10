@@ -15,7 +15,7 @@ func NewFollowService(followPersistence persistence.FollowPersistence) *FollowSe
 	return &FollowService{followPersistence: followPersistence}
 }
 
-func (s *FollowService) GetFollowers(userID int) (*repository.FollowersDTO, error) {
+func (s *FollowService) GetFollowers(userID int) (*[]repository.FollowUserDTO, error) {
 	followers, err := s.followPersistence.GetFollowers(userID)
 	if err != nil {
 		fmt.Printf("error getting followers (service): %v\n", err)
@@ -25,7 +25,7 @@ func (s *FollowService) GetFollowers(userID int) (*repository.FollowersDTO, erro
 	return followers, nil
 }
 
-func (s *FollowService) GetFollowees(userID int) (*repository.FolloweesDTO, error) {
+func (s *FollowService) GetFollowees(userID int) (*[]repository.FollowUserDTO, error) {
 	followees, err := s.followPersistence.GetFollowees(userID)
 	if err != nil {
 		fmt.Printf("error getting followees (service): %v\n", err)
