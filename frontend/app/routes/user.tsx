@@ -1,5 +1,6 @@
 import { Profile } from "~/components/Profile";
-import { Friends } from "~/components/Friends";
+import { Followers } from "~/components/Followers";
+import { Followings } from "~/components/Followings";
 import { MusicList } from "~/components/MusicList";
 import { json, LoaderFunction } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
@@ -32,7 +33,8 @@ export default function UserPage() {
     <div className="font-sans p-4 pt-20 flex flex-col gap-8">
       <Profile displayName={displayName} iconImage={iconImage} xLink={xLink} instagramLink={instagramLink}/>
       <MusicList />
-      <Friends />
+      <Followers />
+      <Followings />
     </div>
   );
 }
