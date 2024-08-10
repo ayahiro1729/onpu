@@ -2,7 +2,7 @@ import React from "react";
 import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
 import { cn } from "~/lib/utils";
-import { Form, json, redirect, useLoaderData, useParams } from "@remix-run/react";
+import { Form, json, redirect, useLoaderData } from "@remix-run/react";
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 
 export const action = async ({
@@ -11,8 +11,20 @@ export const action = async ({
 }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const updates = Object.fromEntries(formData);
-  await updateContact(params.userId, updates);
-  return redirect(`https://localhost:8080/api/v1/user/${params.userId}`);
+
+  const response = await fetch(`https://localhost:8080/api/v1/user/${params.userId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(updates),
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to update music list');
+  }
+
+  return json({ success: true });
 };
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
@@ -88,7 +100,3 @@ const LabelInputContainer = ({
     </div>
   );
 };
-function updateContact(userId: string | undefined, updates: { [k: string]: FormDataEntryValue; }) {
-  throw new Error("Function not implemented.");
-}
-
