@@ -9,6 +9,7 @@ import (
 	"github.com/ayahiro1729/onpu/api/controller/middleware"
 	"github.com/ayahiro1729/onpu/api/infrastructure/database"
 	"github.com/ayahiro1729/onpu/api/infrastructure/repository"
+	"github.com/ayahiro1729/onpu/api/infrastructure/persistence"
 	"github.com/ayahiro1729/onpu/api/usecase/service"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
@@ -65,8 +66,8 @@ func NewServer() (*gin.Engine, error) {
 		authService := service.NewAuthService(spotifyConfig)
 		authHandler := handler.NewAuthHandler(authService)
 
-		// Spotifyからのリダイレクトを受け取り、アクセストークンを取得
-		r.GET("/callback", authHandler.ExchangeCodeForToken)
+		// Spotifyからのリダイレクトを受け取り、①アクセストークンを取得、②ユーザー情報を取得、③登録またはログイン
+		r.GET("/callback", authHandler.AuthenticateUser)
 	}
 
 	// ユーザー情報API
@@ -75,8 +76,33 @@ func NewServer() (*gin.Engine, error) {
 		userService := service.NewUserService(*userRepository)
 		userHandler := handler.NewUserHandler(userService)
 
+		// ユーザーを作成
+		tag.POST("/user", userHandler.PostUser)
+
 		// ユーザーの情報を取得（プロフィール画面）
 		tag.GET("/user/:user_id", userHandler.GetUserProfile)
+	}
+
+	// DBから最新のmusic listを取得するAPI
+	{
+		musicListPersistence := persistence.NewMusicListPersistence(db)
+		musicListService := service.NewMusicListService(*musicListPersistence)
+		musicListHandler := handler.NewMusicListHandler(musicListService)
+
+		tag.GET("/music/:user_id", musicListHandler.LatestMusicList)
+	}
+
+	// フォロー情報API
+	{
+		followPersistence := persistence.NewFollowPersistence(db)
+		followService := service.FollowService(*followPersistence)
+		followHandler := handler.FollowHandler(followService)
+
+		// あるユーザーのフォロワーを取得
+		tag.GET("/follower/:user_id", followHandler.GetFollowers)
+
+		// あるユーザーのフォロー中ユーザーを取得
+		tag.GET("/follower/:user_id", followHandler.GetFollowees)
 	}
 
 	for _, route := range r.Routes() {
