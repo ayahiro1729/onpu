@@ -1,4 +1,4 @@
-import { json, LoaderFunctionArgs } from '@remix-run/node';
+import { json, LoaderFunctionArgs, ActionFunctionArgs, redirect } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 import { Profile } from "~/components/Profile";
 import { MusicList } from "~/components/MusicList";
@@ -6,6 +6,31 @@ import { Follower, Music, UserInfo } from '~/types/types';
 import { Followings } from '~/components/Followings';
 import { Followers } from '~/components/Followers';
 import { Header } from '~/components/Header';
+
+export const action = async ({ request, params }: ActionFunctionArgs) => {
+  const formData = await request.formData();
+  const userId = params.user_id;
+  console.log('Sending request to backend with user_id:', userId);
+  const response = await fetch(`http://backend:8080/api/v1/music`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      user_id: userId,
+    }),
+    credentials: 'include',
+  });
+
+  console.log('Backend response status:', response.status);
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Backend error:', errorText);
+    throw new Error('Failed to update music list');
+  }
+
+  return redirect("./");
+};
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   const userId = params.user_id;
