@@ -1,12 +1,15 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button } from '~/components/ui/button'
 import X from '/x_logo.png'
 import Instagram from '/instagram_logo.png'
-import { Link } from '@remix-run/react'
 import { ProfileProps } from '~/types/types'
+import { Form, useParams } from "@remix-run/react";
 
-const Profile: React.FC<ProfileProps> = ({displayName, iconImage, xLink, instagramLink}) => {
-  const [isFollowed, setIsFollowed] = useState<boolean>(false)
+const Profile: React.FC<ProfileProps> = ({displayName, iconImage, xLink, instagramLink, myUserId}) => {
+  const params = useParams()
+  const pageUserId = params.user_id
+
+  const [ isFollowed, setIsFollowed ] = useState<boolean>(false)
 
   const handleFollow = () => {
     setIsFollowed(!isFollowed)
@@ -17,7 +20,14 @@ const Profile: React.FC<ProfileProps> = ({displayName, iconImage, xLink, instagr
       <div className='flex justify-between'>
         <p className='flex justify-center items-center text-2xl'>Profile</p>
         <div className='pt-3'> 
-          { isFollowed ? <Button size="sm" onClick={handleFollow}>Unfollow</Button> : <Button size="sm" onClick={handleFollow} variant="outline">Follow</Button> }
+          { 
+            myUserId == pageUserId ? 
+            <Form action="edit">
+              <Button size="sm">Edit</Button>
+            </Form> :
+            isFollowed ? <Button size="sm" onClick={handleFollow}>Unfollow</Button> : 
+            <Button size="sm" onClick={handleFollow} variant="outline">Follow</Button> 
+          }
         </div>
       </div>
       <div className='flex justify-between items-center px-2'>
