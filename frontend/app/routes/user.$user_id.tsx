@@ -6,11 +6,12 @@ import { Follower, Music, UserInfo } from '~/types/types';
 import { Followings } from '~/components/Followings';
 import { Followers } from '~/components/Followers';
 import { Header } from '~/components/Header';
+import { Button } from '~/components/ui/button';
+import { useState } from 'react';
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const userId = params.user_id;
-  console.log('Sending request to backend with user_id:', userId);
   const response = await fetch(`http://backend:8080/api/v1/music`, {
     method: 'POST',
     headers: {
@@ -31,8 +32,6 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 
   return redirect("./");
 };
-import { Button } from '~/components/ui/button';
-import { useState } from 'react';
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   const userId = params.user_id;
@@ -108,7 +107,7 @@ export default function User() {
   
   const getMyUserId = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/api/v1/myuserid`, { credentials: "include" });
+      const response = await fetch(`http://localhost:8080/api/v1/session/myuserid`, { credentials: "include" });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }

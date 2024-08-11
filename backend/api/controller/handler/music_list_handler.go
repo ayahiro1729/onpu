@@ -8,7 +8,6 @@ import (
 	"github.com/ayahiro1729/onpu/api/usecase/service"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gin-contrib/sessions"
 )
 
 type MusicListHandler struct {
@@ -49,9 +48,6 @@ type MusicListRequest struct {
 
 // ユーザーのmusic_listを作成
 func (h *MusicListHandler) PostMusicList(c *gin.Context) {
-	session := sessions.Default(c)
-  fmt.Printf("Session data in PostMusicList: %+v\n", session.Get("access_token"))
-
 	var req MusicListRequest
 	//request body からuser_idを取得
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -77,7 +73,6 @@ func (h *MusicListHandler) PostMusicList(c *gin.Context) {
         return
     }
 
-
 	// access_tokenを取得
 	token, err := h.musicListService.CheckAccessToken()
 	if err != nil {
@@ -86,13 +81,6 @@ func (h *MusicListHandler) PostMusicList(c *gin.Context) {
 		return
 	}
 	fmt.Printf("Access token retrieved successfully\n")
-
-	// users.idを取得
-	// userID, err := h.musicListService.FetchUserID(token)
-	// if err != nil {
-	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-	// 	return
-	// }
 
 	// ユーザーのお気に入りの曲を10曲取得
 	musics, err := h.musicListService.FetchTenFavoriteMusics(token)

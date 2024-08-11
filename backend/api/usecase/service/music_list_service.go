@@ -34,8 +34,8 @@ func (s *MusicListService) LatestMusicList(userID int) (*repository.MusicListWit
 
 // セッションに保存されたアクセストークンを取得
 func (s *MusicListService) CheckAccessToken() (string, error) {
-	uri := "http://localhost:8080/api/v1/session/token"
-	req, err := http.NewRequest("GET", uri, http.NoBody)
+	uri := "http://backend:8080/api/v1/session/token"
+	req, err := http.NewRequest("GET", uri, nil)
 	if err != nil {
 		fmt.Printf("error creating token request: %v\n", err)
 		return "", err

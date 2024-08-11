@@ -3,7 +3,6 @@ package controller
 import (
 	"fmt"
 	"os"
-	"net/http"
 
 	"github.com/ayahiro1729/onpu/api/config"
 	"github.com/ayahiro1729/onpu/api/controller/handler"
@@ -13,10 +12,9 @@ import (
 	"github.com/ayahiro1729/onpu/api/infrastructure/repository"
 	"github.com/ayahiro1729/onpu/api/usecase/service"
 
-	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
-	
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/exp/slog"
 )
@@ -30,16 +28,8 @@ func NewServer() (*gin.Engine, error) {
 
 	// setting a session
 	store := cookie.NewStore([]byte("secret"))
-	store.Options(sessions.Options{
-    Path:     "/",
-    MaxAge:   86400 * 7, // 1週間
-    HttpOnly: true,
-    Secure:   false, // 開発環境ではfalse、本番環境ではtrueに
-		SameSite: http.SameSiteLaxMode,
-	})
-	r.Use(sessions.Sessions("mysession", store))
-
-	r.Use(middleware.SessionDebug())
+	sessionNames := []string{"access_token", "user_id"}
+	r.Use(sessions.SessionsMany(sessionNames, store))
 
 	opts := middleware.ServerLogJsonOptions{
 		SlogOpts: slog.HandlerOptions{
@@ -57,7 +47,22 @@ func NewServer() (*gin.Engine, error) {
 
 	// setting a CORS
 	// setting a logger
-	r.Use(middleware.Cors(), middleware.Logger(logger))
+	// r.Use(middleware.Cors(), middleware.Logger(logger))
+
+
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{
+			"http://localhost:3000",
+			"http://localhost:8080",
+			"http://backend:8080",
+		},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+}))
+
+r.Use(middleware.Logger(logger))
 
 	// setting a database
 	db := database.NewDB()
@@ -82,6 +87,9 @@ func NewServer() (*gin.Engine, error) {
 
 		// Spotifyからのリダイレクトを受け取り、①アクセストークンを取得、②ユーザー情報を取得、③登録またはログイン
 		r.GET("/callback", authHandler.AuthenticateUser)
+
+		// 現在ログイン中のユーザーのIDを取得
+		tag.GET("/session/myuserid", authHandler.GetUserIDFromSession)
 
 		// セッションからアクセストークンを取得
 		tag.GET("/session/token", authHandler.GetAccessTokenFromSession)

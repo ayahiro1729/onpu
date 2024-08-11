@@ -59,13 +59,11 @@ func (h *AuthHandler) AuthenticateUser(c *gin.Context) {
 
 	// user_idをSessionに保存
 	sessionUserID := sessions.DefaultMany(c, "user_id")
-	sessionUserID.Set("user_id", user_id)
+	sessionUserID.Set("user_id", userID)
 	if err := sessionUserID.Save(); err != nil {
-		fmt.Println("Error saving my user id to session: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	fmt.Println("My user id is saved to session!!: %d", sessionUserID.Get("user_id"))
 
 	// c.JSON(200, gin.H{
 	// 	"token": sessionAccessToken.Get("access_token"),
@@ -78,17 +76,6 @@ func (h *AuthHandler) AuthenticateUser(c *gin.Context) {
 }
 
 func (h *AuthHandler) GetUserIDFromSession(c *gin.Context) {
-	sessionAccessToken := sessions.DefaultMany(c, "access_token")
-	token := sessionAccessToken.Get("access_token")
-
-	if token == nil {
-		fmt.Println("Error getting my token from session:")
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-		return
-	}
-
-	fmt.Println("Retrieved token from session:", token)
-
 	sessionUserID := sessions.DefaultMany(c, "user_id")
 	userID := sessionUserID.Get("user_id")
 
@@ -101,7 +88,6 @@ func (h *AuthHandler) GetUserIDFromSession(c *gin.Context) {
 	fmt.Println("Retrieved user id from session:", userID)
 
 	c.JSON(200, gin.H{
-		"token": sessionAccessToken.Get("access_token"),
 		"user_id": sessionUserID.Get("user_id"),
 	})
 
@@ -109,15 +95,14 @@ func (h *AuthHandler) GetUserIDFromSession(c *gin.Context) {
 
 // セッションからアクセストークンを取得
 func (h *AuthHandler) GetAccessTokenFromSession(c *gin.Context) {
-	session := sessions.Default(c)
-	token := session.Get("access_token")
-	fmt.Printf("Session data: %+v\n", session.Flashes()...)
-  fmt.Printf("Retrieved token from session: %v\n", token)
+	sessionAccessToken := sessions.DefaultMany(c, "access_token")
+	token := sessionAccessToken.Get("access_token")
+
 	if token == nil {
-		fmt.Println("Token not found in session")
+		fmt.Println("Error getting my token from session:")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"access_token": token})
+	c.JSON(200, gin.H{"access_token": sessionAccessToken.Get("access_token")})
 }
