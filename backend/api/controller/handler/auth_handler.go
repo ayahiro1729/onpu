@@ -35,9 +35,9 @@ func (h *AuthHandler) AuthenticateUser(c *gin.Context) {
 		return
 	}
 
-	session := sessions.Default(c)
-	session.Set("access_token", token)
-	if err := session.Save(); err != nil {
+	sessionAccessToken := sessions.DefaultMany(c, "access_token")
+	sessionAccessToken.Set("access_token", token)
+	if err := sessionAccessToken.Save(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -57,13 +57,19 @@ func (h *AuthHandler) AuthenticateUser(c *gin.Context) {
 	}
 
 	// user_idをSessionに保存
-	session.Set("user_id", user_id)
-	if err := session.Save(); err != nil {
+	sessionUserID := sessions.DefaultMany(c, "user_id")
+	sessionUserID.Set("user_id", user_id)
+	if err := sessionUserID.Save(); err != nil {
 		fmt.Println("Error saving my user id to session: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	fmt.Println("My user id is saved to session: %d", user_id)
+
+	// c.JSON(200, gin.H{
+	// 	"token": sessionToken.Get("token"),
+	// 	"user_id": sessionUserID.Get("user_id"),
+	// })
 
 	// フロントエンドにリダイレクト
 	redirectURL := fmt.Sprintf("http://localhost:3000/user/%d", user_id)
@@ -71,8 +77,8 @@ func (h *AuthHandler) AuthenticateUser(c *gin.Context) {
 }
 
 func (h *AuthHandler) GetUserIDFromSession(c *gin.Context) {
-	session := sessions.Default(c)
-	userID := session.Get("user_id")
+	sessionUserID := sessions.DefaultMany(c, "user_id")
+	userID := sessionUserID.Get("user_id")
 
 	if userID == nil {
 		fmt.Println("Error getting my user id from session:")
@@ -80,7 +86,7 @@ func (h *AuthHandler) GetUserIDFromSession(c *gin.Context) {
 		return
 	}
 
-	fmt.Println("Retrieved user_id from session:", userID)
+	fmt.Println("Retrieved user s_id from session:", userID)
 
 	c.JSON(http.StatusOK, gin.H{"user_id": userID})
 }
