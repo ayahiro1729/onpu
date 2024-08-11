@@ -35,9 +35,9 @@ func (h *AuthHandler) AuthenticateUser(c *gin.Context) {
 		return
 	}
 
-	session := sessions.Default(c)
-	session.Set("access_token", token)
-	if err := session.Save(); err != nil {
+	sessionAccessToken := sessions.DefaultMany(c, "access_token")
+	sessionAccessToken.Set("access_token", token)
+	if err := sessionAccessToken.Save(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -57,9 +57,54 @@ func (h *AuthHandler) AuthenticateUser(c *gin.Context) {
 		return
 	}
 
+	// user_idをSessionに保存
+	sessionUserID := sessions.DefaultMany(c, "user_id")
+	sessionUserID.Set("user_id", user_id)
+	if err := sessionUserID.Save(); err != nil {
+		fmt.Println("Error saving my user id to session: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	fmt.Println("My user id is saved to session!!: %d", sessionUserID.Get("user_id"))
+
+	// c.JSON(200, gin.H{
+	// 	"token": sessionAccessToken.Get("access_token"),
+	// 	"user_id": sessionUserID.Get("user_id"),
+	// })
+
 	// フロントエンドにリダイレクト
 	redirectURL := fmt.Sprintf("http://localhost:3000/user/%d", userID)
 	c.Redirect(http.StatusFound, redirectURL)
+}
+
+func (h *AuthHandler) GetUserIDFromSession(c *gin.Context) {
+	sessionAccessToken := sessions.DefaultMany(c, "access_token")
+	token := sessionAccessToken.Get("access_token")
+
+	if token == nil {
+		fmt.Println("Error getting my token from session:")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	fmt.Println("Retrieved token from session:", token)
+
+	sessionUserID := sessions.DefaultMany(c, "user_id")
+	userID := sessionUserID.Get("user_id")
+
+	if userID == nil {
+		fmt.Println("Error getting my user id from session:")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	fmt.Println("Retrieved user id from session:", userID)
+
+	c.JSON(200, gin.H{
+		"token": sessionAccessToken.Get("access_token"),
+		"user_id": sessionUserID.Get("user_id"),
+	})
+
 }
 
 // セッションからアクセストークンを取得

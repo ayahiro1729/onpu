@@ -13,5 +13,5 @@ type FollowersRepository interface {
 }
 
 type FolloweesRepository interface {
-	GetFollowers(userID int) (*[]FollowUserDTO, error)
+	GetFollowees(userID int) (*[]FollowUserDTO, error)
 }
