@@ -40,6 +40,7 @@ func (s *MusicListService) CheckAccessToken() (string, error) {
 		fmt.Printf("error creating token request: %v\n", err)
 		return "", err
 	}
+	req.Header.Set("credentials", "include")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)

@@ -3,6 +3,7 @@ package controller
 import (
 	"fmt"
 	"os"
+	"net/http"
 
 	"github.com/ayahiro1729/onpu/api/config"
 	"github.com/ayahiro1729/onpu/api/controller/handler"
@@ -24,9 +25,23 @@ const (
 
 func NewServer() (*gin.Engine, error) {
 	r := gin.Default()
+
+	// setting a session
+	store := cookie.NewStore([]byte("secret"))
+	store.Options(sessions.Options{
+    Path:     "/",
+    MaxAge:   86400 * 7, // 1週間
+    HttpOnly: true,
+    Secure:   false, // 開発環境ではfalse、本番環境ではtrueに
+		SameSite: http.SameSiteLaxMode,
+	})
+	r.Use(sessions.Sessions("mysession", store))
+
+	r.Use(middleware.SessionDebug())
+
 	opts := middleware.ServerLogJsonOptions{
 		SlogOpts: slog.HandlerOptions{
-			Level: slog.LevelInfo,
+			Level: slog.LevelDebug,
 		},
 		Indent: 4,
 	}
@@ -41,10 +56,6 @@ func NewServer() (*gin.Engine, error) {
 	// setting a CORS
 	// setting a logger
 	r.Use(middleware.Cors(), middleware.Logger(logger))
-
-	// setting a session
-	store := cookie.NewStore([]byte("secret"))
-	r.Use(sessions.Sessions("mysession", store))
 
 	// setting a database
 	db := database.NewDB()

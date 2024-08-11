@@ -41,6 +41,7 @@ func (h *AuthHandler) AuthenticateUser(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	fmt.Printf("Session saved successfully. Token: %v\n", token)
 
 	// ユーザー情報を取得
 	user, err := h.authService.FetchSpotifyUser(token)
@@ -65,7 +66,10 @@ func (h *AuthHandler) AuthenticateUser(c *gin.Context) {
 func (h *AuthHandler) GetAccessTokenFromSession(c *gin.Context) {
 	session := sessions.Default(c)
 	token := session.Get("access_token")
+	fmt.Printf("Session data: %+v\n", session.Flashes()...)
+  fmt.Printf("Retrieved token from session: %v\n", token)
 	if token == nil {
+		fmt.Println("Token not found in session")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}

@@ -3,12 +3,14 @@ package middleware
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"strings"
 	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-contrib/sessions"
 	"golang.org/x/exp/slog"
 )
 
@@ -38,13 +40,20 @@ func Cors() gin.HandlerFunc {
 		AllowMethods: []string{
 			"POST",
 			"GET",
+			"PUT",
+			"PATCH",
+			"DELETE",
+			"HEAD",
 			"OPTIONS",
 		},
 		AllowHeaders: []string{
+			"Origin",
+			"Authorization",
+			"Content-Length",
 			"Content-Type",
 		},
-		AllowCredentials: false,
-		MaxAge:           24 * time.Hour,
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
 	})
 }
 
@@ -127,4 +136,13 @@ func addFields(fields map[string]any, a slog.Attr) {
 		addFields(innerFields, attr)
 	}
 	fields[a.Key] = innerFields
+}
+
+func SessionDebug() gin.HandlerFunc {
+	return func(c *gin.Context) {
+			session := sessions.Default(c)
+			fmt.Printf("Session before request: %+v\n", session.Flashes()...)
+			c.Next()
+			fmt.Printf("Session after request: %+v\n", session.Flashes()...)
+	}
 }

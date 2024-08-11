@@ -49,6 +49,7 @@ func (mlp *MusicListPersistence) LatestMusicList(userID int) (*repository.MusicL
 
 // music_listをDBに保存
 func (mlp *MusicListPersistence) SaveMusicList(userID int) error {
+	fmt.Printf("Saving music list for user ID: %d\n", userID)
 	if err := mlp.db.Create(&model.MusicList{
 		UserID: userID,
 	}).Error; err != nil {
