@@ -48,3 +48,17 @@ func (p *FollowPersistence) GetFollowees(userID int) (*[]repository.FollowUserDT
 
 	return &followees, nil
 }
+
+func (p *FollowPersistence) FollowUser(followerID int, followeeID int) error {
+	follow := repository.FollowUpdateDTO{
+		FollowerID: followerID,
+		FolloweeID: followeeID,
+	}
+
+	if err := p.db.Select("FollowerID", "FolloweeID").Create(&follow).Error; err != nil {
+		fmt.Printf("errror during creating new record to follows table: %v\n", err)
+		return err
+	}
+
+	return nil
+}
