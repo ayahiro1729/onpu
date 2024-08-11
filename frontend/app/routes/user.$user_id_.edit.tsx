@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
 import { cn } from "~/lib/utils";
 import { Form, json, redirect, useLoaderData } from "@remix-run/react";
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { Header } from "~/components/Header";
+import { UserInfo } from "~/types/types";
 
 export const action = async ({
   params,
@@ -28,51 +30,89 @@ export const action = async ({
 };
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
-  const response = await fetch(`https://localhost:8080/api/v1/user/${params.userId}`);
-  const data = await response.json();
+  const userId = params.user_id;
+  const userResponse = await fetch(`http://backend:8080/api/v1/user/${userId}`);
+  if (!userResponse.ok) {
+    throw new Error (`Failed to fetch user data: ${userResponse.statusText}`)
+  }
+  const userData = await userResponse.json();
 
-  return json({
-    user_id: params.userId,
-    xLink: data.x_link,
-    instagramLink: data.instagram_link
-  });
+  const userInfo: UserInfo = {
+    displayName: userData.user.DisplayName,
+    iconImage: userData.user.IconImage,
+    xLink: userData.user.XLink,
+    instagramLink: userData.user.InstagramLink,
+  };
+
+  return json({ userInfo, userId });
 };
 
 export default function EditContact() {
-  const { user_id, xLink, instagramLink } = useLoaderData<typeof loader>();
+  const { userInfo } = useLoaderData<typeof loader>();
+  const [myUserId, setMyUserId] = useState<number | null>(null);  
+
+  useEffect(() => {
+    const getMyUserId = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/api/v1/myuserid`, { credentials: "include" });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const result = await response.json();
+        setMyUserId(result.user_id);
+      } catch (error) {
+        console.error("There was a problem with the fetch operation:", error);
+      }
+    }
+    getMyUserId();
+  }, []);
+
+  useEffect(() => {
+    if (myUserId !== null) {
+      console.log('myUserId:', myUserId);
+    }
+  }, [myUserId]);
+
+  if (myUserId === null) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <div className="p-4 pt-20">
-      <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl shadow-input bg-white dark:bg-black">
-        <Form key={user_id} id="contact-form" method="post">
-          <LabelInputContainer className="mb-4">
-            <Label htmlFor="x_link">X URL</Label>
-            <Input
-              defaultValue={xLink}
-              name="x_link"
-              placeholder="@hoge"
-              type="text"
-              id="x_link"
-            />
-          </LabelInputContainer>
-          <LabelInputContainer className="mb-4">
-            <Label htmlFor="instagram_link">X URL</Label>
-            <Input
-              defaultValue={instagramLink}
-              name="instagram_link"
-              placeholder="@hoge"
-              type="text"
-              id="instagram_link"
-            />
-          </LabelInputContainer>
-          <button
-            className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
-            type="submit"
-          >
-            Update
-            <BottomGradient />
-          </button>
-        </Form>
+    <div>
+      <Header 
+        iconImage={userInfo.iconImage}
+        myUserId={myUserId}
+      />
+      <div className="p-4 pt-20">
+        <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl shadow-input bg-white dark:bg-black">
+          <Form id="contact-form" method="post">
+            <LabelInputContainer className="mb-4">
+              <Label htmlFor="x_link">X URL</Label>
+              <Input
+                name="x_link"
+                placeholder="https://x.com/example"
+                type="text"
+                id="x_link"
+              />
+            </LabelInputContainer>
+            <LabelInputContainer className="mb-4">
+              <Label htmlFor="instagram_link">Instagram URL</Label>
+              <Input
+                name="instagram_link"
+                placeholder="https://instagram.com/example"
+                type="text"
+                id="instagram_link"
+              />
+            </LabelInputContainer>
+            <button
+              className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
+              type="submit"
+            >
+              Update
+              <BottomGradient />
+            </button>
+          </Form>
+        </div>
       </div>
     </div>
   );
