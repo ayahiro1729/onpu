@@ -34,3 +34,12 @@ func (s *FollowService) GetFollowees(userID int) (*[]repository.FollowUserDTO, e
 
 	return followees, nil
 }
+
+func (s *FollowService) FollowUser(followerID int, followeeID int) error {
+	if err := s.followPersistence.FollowUser(followerID, followeeID); err != nil {
+		fmt.Printf("error following user (service): %v\n", err)
+		return err
+	}
+	
+	return nil
+}
