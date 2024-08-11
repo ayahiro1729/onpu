@@ -41,3 +41,17 @@ export type ProfileProps = {
   xLink?: string
   instagramLink?: string
 }
+
+export type Follower = {
+  userId: number;
+  displayName: string;
+  iconImage: string;
+}
+
+export type FollowerProps = {
+  followers: Follower[]
+}
+
+export type FollowingsProps = {
+  followings: Follower[]
+}

@@ -7,6 +7,7 @@ import { Followings } from '~/components/Followings';
 import { Followers } from '~/components/Followers';
 import { Header } from '~/components/Header';
 import { Button } from '~/components/ui/button';
+import { useState } from 'react';
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   const userId = params.user_id;
@@ -72,31 +73,22 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
 };
 
 export default function User() {
-  const { userInfo, musicList, followers, followings, myUserId } = useLoaderData<typeof loader>();
+  const { userInfo, musicList, followers, followings } = useLoaderData<typeof loader>();
   const [myuserid, setMyuserid] = useState("")
-  useEffect(() => {
-    const fetchData = async () => {
-      
-        const response = await fetch(`http://backend:8080/api/v1/myuserid`, { credentials: "include" });
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const result = await response.json();
-        setMyuserid(result);
-      
-    };
-
-    fetchData();
-  }, []); // 
   
-  const  getMyUserId = async () => {
-    const myUserIdResponse = await fetch(`http://backend:8080/api/v1/myuserid`, { credentials: "include" })
-    if (!myUserIdResponse.ok) {
-      throw new Error (`Failed to fetch my user id: ${myUserIdResponse.statusText}`)
+  const getMyUserId = async () => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/v1/myuserid`, { credentials: "include" });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const result = await response.json();
+      console.log(result);
+      setMyuserid(result);
+    } catch (error) {
+      console.error("There was a problem with the fetch operation:", error);
     }
-    const myUserId = await myUserIdResponse.json();
-    console.log(myUserId)
-  }
+  };
 
   return (
     <div>
@@ -115,12 +107,5 @@ export default function User() {
     </div>
     </div>
   );
-}
-
-function useState(arg0: string): [any, any] {
-  throw new Error('Function not implemented.');
-}
-function useEffect(arg0: () => void, arg1: never[]) {
-  throw new Error('Function not implemented.');
 }
 

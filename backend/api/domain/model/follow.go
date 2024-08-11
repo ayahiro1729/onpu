@@ -19,3 +19,7 @@ type Follow struct {
 	Follower User `gorm:"foreignKey:FollowerID"`
 	Followee User `gorm:"foreignKey:FolloweeID"`
 }
+
+func (Follow) TableName() string {
+	return "follows"
+}
