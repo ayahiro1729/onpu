@@ -43,7 +43,9 @@ func NewServer() (*gin.Engine, error) {
 
 	// setting a session
 	store := cookie.NewStore([]byte("secret"))
-	r.Use(sessions.Sessions("mysession", store))
+	sessionNames := []string{"access_token", "user_id"}
+	// r.Use(sessions.Sessions("mysession", store))
+	r.Use(sessions.SessionsMany(sessionNames, store))
 
 	// setting a database
 	db := database.NewDB()
