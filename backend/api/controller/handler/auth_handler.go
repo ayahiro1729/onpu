@@ -64,10 +64,10 @@ func (h *AuthHandler) AuthenticateUser(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	fmt.Println("My user id is saved to session: %d", user_id)
+	fmt.Println("My user id is saved to session!!: %d", sessionUserID.Get("user_id"))
 
 	// c.JSON(200, gin.H{
-	// 	"token": sessionToken.Get("token"),
+	// 	"token": sessionAccessToken.Get("access_token"),
 	// 	"user_id": sessionUserID.Get("user_id"),
 	// })
 
@@ -77,6 +77,17 @@ func (h *AuthHandler) AuthenticateUser(c *gin.Context) {
 }
 
 func (h *AuthHandler) GetUserIDFromSession(c *gin.Context) {
+	sessionAccessToken := sessions.DefaultMany(c, "access_token")
+	token := sessionAccessToken.Get("access_token")
+
+	if token == nil {
+		fmt.Println("Error getting my token from session:")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	fmt.Println("Retrieved token from session:", token)
+
 	sessionUserID := sessions.DefaultMany(c, "user_id")
 	userID := sessionUserID.Get("user_id")
 
@@ -86,7 +97,11 @@ func (h *AuthHandler) GetUserIDFromSession(c *gin.Context) {
 		return
 	}
 
-	fmt.Println("Retrieved user s_id from session:", userID)
+	fmt.Println("Retrieved user id from session:", userID)
 
-	c.JSON(http.StatusOK, gin.H{"user_id": userID})
+	c.JSON(200, gin.H{
+		"token": sessionAccessToken.Get("access_token"),
+		"user_id": sessionUserID.Get("user_id"),
+	})
+
 }
