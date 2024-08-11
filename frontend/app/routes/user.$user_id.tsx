@@ -35,7 +35,12 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
   }
   const followingsData = await followingsResponse.json();
 
-  
+  // const myUserIdResponse = await fetch(`http://backend:8080/api/v1/myuserid`)
+  // if (!myUserIdResponse.ok) {
+  //   throw new Error (`Failed to fetch my user id: ${myUserIdResponse.statusText}`)
+  // }
+  // const myUserId = await myUserIdResponse.json();
+  // console.log(myUserId)
 
   const userInfo: UserInfo = {
     displayName: userData.user.DisplayName,
