@@ -1,116 +1,107 @@
-package controller
+package handler
 
 import (
 	"fmt"
-	"os"
+	"net/http"
 
-	"github.com/ayahiro1729/onpu/api/config"
-	"github.com/ayahiro1729/onpu/api/controller/handler"
-	"github.com/ayahiro1729/onpu/api/controller/middleware"
-	"github.com/ayahiro1729/onpu/api/infrastructure/database"
-	"github.com/ayahiro1729/onpu/api/infrastructure/repository"
-	"github.com/ayahiro1729/onpu/api/infrastructure/persistence"
 	"github.com/ayahiro1729/onpu/api/usecase/service"
+
 	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
-	"golang.org/x/exp/slog"
 )
 
-const (
-	apiVersion = "/api/v1"
-)
+type AuthHandler struct {
+	authService *service.AuthService
+}
 
-func NewServer() (*gin.Engine, error) {
-	r := gin.Default()
-	opts := middleware.ServerLogJsonOptions{
-		SlogOpts: slog.HandlerOptions{
-			Level: slog.LevelInfo,
-		},
-		Indent: 4,
+func NewAuthHandler(authService *service.AuthService) *AuthHandler {
+	return &AuthHandler{
+		authService: authService,
 	}
-	loghandler := middleware.NewServerLogJsonHandler(os.Stdout, opts)
-	logger := slog.New(loghandler)
+}
 
-	spotifyConfig, err := config.NewSpotifyConfig()
+// Spotifyからのリダイレクトを受け取り、アクセストークンを取得
+func (h *AuthHandler) AuthenticateUser(c *gin.Context) {
+	code := c.Query("code")
+	if code == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Authorization code not provided"})
+		return
+	}
+
+	// 認可コードを使用してアクセストークンを取得
+	token, err := h.authService.FetchSpotifyToken(code)
 	if err != nil {
-		return nil, err
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
-	// setting a CORS
-	// setting a logger
-	r.Use(middleware.Cors(), middleware.Logger(logger))
-
-	// setting a session
-	store := cookie.NewStore([]byte("secret"))
-	sessionNames := []string{"access_token", "user_id"}
-	// r.Use(sessions.Sessions("mysession", store))
-	r.Use(sessions.SessionsMany(sessionNames, store))
-
-	// setting a database
-	db := database.NewDB()
-	if db != nil {
-		fmt.Println("PostgreSQLに接続成功")
-	} else {
-		fmt.Println("PostgreSQLに接続失敗")
+	sessionAccessToken := sessions.DefaultMany(c, "access_token")
+	sessionAccessToken.Set("access_token", token)
+	if err := sessionAccessToken.Save(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
-	tag := r.Group(apiVersion)
-	// ヘルスチェックAPI
-	{
-		systemHandler := handler.NewSystemHandler()
-
-		tag.GET("/system/health", systemHandler.Health)
+	// ユーザー情報を取得
+	user, err := h.authService.FetchSpotifyUser(token)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
-	// Spotify認証API
-	{
-		authService := service.NewAuthService(spotifyConfig)
-		authHandler := handler.NewAuthHandler(authService)
-
-		// Spotifyからのリダイレクトを受け取り、①アクセストークンを取得、②ユーザー情報を取得、③登録またはログイン
-		r.GET("/callback", authHandler.AuthenticateUser)
-		tag.GET("/myuserid", authHandler.GetUserIDFromSession)
+	// DBからuser_idを取得（アカウントがない場合は登録）
+	user_id, err := h.authService.FetchUserID(user)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
-	// ユーザー情報API
-	{
-		userRepository := repository.NewUserRepository(db)
-		userService := service.NewUserService(*userRepository)
-		userHandler := handler.NewUserHandler(userService)
+	// user_idをSessionに保存
+	sessionUserID := sessions.DefaultMany(c, "user_id")
+	sessionUserID.Set("user_id", user_id)
+	if err := sessionUserID.Save(); err != nil {
+		fmt.Println("Error saving my user id to session: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	fmt.Println("My user id is saved to session!!: %d", sessionUserID.Get("user_id"))
 
-		// ユーザーを作成
-		tag.POST("/user", userHandler.PostUser)
+	// c.JSON(200, gin.H{
+	// 	"token": sessionAccessToken.Get("access_token"),
+	// 	"user_id": sessionUserID.Get("user_id"),
+	// })
 
-		// ユーザーの情報を取得（プロフィール画面）
-		tag.GET("/user/:user_id", userHandler.GetUserProfile)
+	// フロントエンドにリダイレクト
+	redirectURL := fmt.Sprintf("http://localhost:3000/user/%d", user_id)
+	c.Redirect(http.StatusFound, redirectURL)
+}
+
+func (h *AuthHandler) GetUserIDFromSession(c *gin.Context) {
+	sessionAccessToken := sessions.DefaultMany(c, "access_token")
+	token := sessionAccessToken.Get("access_token")
+
+	if token == nil {
+		fmt.Println("Error getting my token from session:")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
 	}
 
-	// DBから最新のmusic listを取得するAPI
-	{
-		musicListPersistence := persistence.NewMusicListPersistence(db)
-		musicListService := service.NewMusicListService(*musicListPersistence)
-		musicListHandler := handler.NewMusicListHandler(musicListService)
+	fmt.Println("Retrieved token from session:", token)
 
-		tag.GET("/music/:user_id", musicListHandler.LatestMusicList)
+	sessionUserID := sessions.DefaultMany(c, "user_id")
+	userID := sessionUserID.Get("user_id")
+
+	if userID == nil {
+		fmt.Println("Error getting my user id from session:")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
 	}
 
-	// フォロー情報API
-	{
-		followPersistence := persistence.NewFollowPersistence(db)
-		followService := service.NewFollowService(*followPersistence)
-		followHandler := handler.NewFollowHandler(followService)
+	fmt.Println("Retrieved user id from session:", userID)
 
-		// あるユーザーのフォロワーを取得
-		tag.GET("/follower/:user_id", followHandler.GetFollowers)
+	c.JSON(200, gin.H{
+		"token": sessionAccessToken.Get("access_token"),
+		"user_id": sessionUserID.Get("user_id"),
+	})
 
-		// あるユーザーのフォロー中ユーザーを取得
-		tag.GET("/followee/:user_id", followHandler.GetFollowees)
-	}
-
-	for _, route := range r.Routes() {
-		fmt.Printf("Method: %s - Path: %s\n", route.Method, route.Path)
-	}
-
-	return r, nil
 }
