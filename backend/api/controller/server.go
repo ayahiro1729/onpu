@@ -11,6 +11,8 @@ import (
 	"github.com/ayahiro1729/onpu/api/infrastructure/repository"
 	"github.com/ayahiro1729/onpu/api/infrastructure/persistence"
 	"github.com/ayahiro1729/onpu/api/usecase/service"
+
+	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
@@ -39,11 +41,23 @@ func NewServer() (*gin.Engine, error) {
 
 	// setting a CORS
 	// setting a logger
-	r.Use(middleware.Cors(), middleware.Logger(logger))
+	// r.Use(middleware.Cors(), middleware.Logger(logger))
+
+	r.Use(cors.New(cors.Config{
+        AllowOrigins:     []string{"http://localhost:3000"},
+        AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+        AllowHeaders:     []string{"Origin", "Content-Type"},
+        ExposeHeaders:    []string{"Content-Length"},
+        AllowCredentials: true,
+    }))
+
+	r.Use(middleware.Logger(logger))
 
 	// setting a session
 	store := cookie.NewStore([]byte("secret"))
-	r.Use(sessions.Sessions("mysession", store))
+	sessionNames := []string{"access_token", "user_id"}
+	// r.Use(sessions.Sessions("mysession", store))
+	r.Use(sessions.SessionsMany(sessionNames, store))
 
 	// setting a database
 	db := database.NewDB()
@@ -68,6 +82,7 @@ func NewServer() (*gin.Engine, error) {
 
 		// Spotifyからのリダイレクトを受け取り、①アクセストークンを取得、②ユーザー情報を取得、③登録またはログイン
 		r.GET("/callback", authHandler.AuthenticateUser)
+		tag.GET("/myuserid", authHandler.GetUserIDFromSession)
 	}
 
 	// ユーザー情報API
@@ -83,7 +98,7 @@ func NewServer() (*gin.Engine, error) {
 		tag.GET("/user/:user_id", userHandler.GetUserProfile)
 	}
 
-	// DBから最新のmusic listを取得するAPI
+	// music list情報API
 	{
 		musicListPersistence := persistence.NewMusicListPersistence(db)
 		musicListService := service.NewMusicListService(*musicListPersistence)
@@ -103,6 +118,9 @@ func NewServer() (*gin.Engine, error) {
 
 		// あるユーザーのフォロー中ユーザーを取得
 		tag.GET("/followee/:user_id", followHandler.GetFollowees)
+
+		// ユーザーをフォローする
+		tag.POST("/follow/:follower_id/:followee_id", followHandler.FollowUser)
 	}
 
 	for _, route := range r.Routes() {
