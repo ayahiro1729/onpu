@@ -65,3 +65,30 @@ func (h *FollowHandler) GetFollowees(c *gin.Context) {
 		"followees": followees,
 	})
 }
+
+func (h *FollowHandler) FollowUser(c *gin.Context) {
+	followerIDStr := c.Param("follower_id")
+	followeeIDStr := c.Param("followee_id")
+
+	followerID, err := strconv.Atoi(followerIDStr)
+	if err != nil {
+		fmt.Printf("error reading follower_id param: %v\n", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	followeeID, err := strconv.Atoi(followeeIDStr)
+	if err != nil {
+		fmt.Printf("error reading followee_id param: %v\n", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := h.followService.FollowUser(followerID, followeeID); err != nil {
+		fmt.Printf("error following user (handler): %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"message": "Successfully followed user"})
+}
