@@ -121,6 +121,9 @@ func NewServer() (*gin.Engine, error) {
 
 		// ユーザーをフォローする
 		tag.POST("/follow/:follower_id/:followee_id", followHandler.FollowUser)
+
+		// ユーザーのフォローを外す
+		tag.DELETE("/follow/:follower_id/:followee_id", followHandler.UnfollowUser)
 	}
 
 	for _, route := range r.Routes() {

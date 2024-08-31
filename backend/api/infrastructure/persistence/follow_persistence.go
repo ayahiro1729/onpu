@@ -62,3 +62,13 @@ func (p *FollowPersistence) FollowUser(followerID int, followeeID int) error {
 
 	return nil
 }
+
+func (p *FollowPersistence) UnfollowUser(followerID int, followeeID int) error {
+	if err := p.db.Where("follower_id = ? AND followee_id = ?", followerID, followeeID).
+		Delete(&model.Follow{}).Error; err != nil {
+		fmt.Printf("errror during creating new record to follows table: %v\n", err)
+		return err
+	}
+
+	return nil
+}
