@@ -49,3 +49,11 @@ func (s *UserService) FindUserProfile(id uint) (*model.User, error) {
 	}
 	return user, nil
 }
+
+func (s *UserService) UpdateUserProfile(user *model.User) error {
+	err := s.userRepository.UpdateUser(user)
+	if err != nil {
+		return errors.New("failed to update user")
+	}
+	return nil
+}

@@ -42,6 +42,7 @@ func (r *UserRepository) CreateUser(user *model.User) error {
 
 // ユーザーを更新
 func (r *UserRepository) UpdateUser(user *model.User) error {
+
 	return r.db.Save(user).Error
 }
 
