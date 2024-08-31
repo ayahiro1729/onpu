@@ -23,7 +23,7 @@ func (p *FollowPersistence) GetFollowers(userID int) (*[]repository.FollowUserDT
 	if err := p.db.Model(&model.Follow{}).
 			Select("users.id", "users.user_name", "users.user_name", "users.display_name", "users.icon_image", "follows.updated_at").
 			Joins("left join users on follows.followee_id = users.id").
-			Where("follows.followee_id = ?", userID).
+			Where("follows.followee_id = ? AND follows.deleted_at IS NULL", userID).
 			Scan(&followers).Error;
 	err != nil {
 		fmt.Printf("error during select from follows when getting followers (persistence): %v\n", err)
@@ -39,7 +39,7 @@ func (p *FollowPersistence) GetFollowees(userID int) (*[]repository.FollowUserDT
 	if err := p.db.Model(&model.Follow{}).
 			Select("users.id, users.user_name, users.user_name, users.display_name, users.icon_image, follows.updated_at").
 			Joins("left join users on follows.follower_id = users.id").
-			Where("follows.follower_id = ?", userID).
+			Where("follows.follower_id = ? AND follows.deleted_at IS NULL", userID).
 			Scan(&followees).Error;
 	err != nil {
 		fmt.Printf("error during select from follows when getting followees (persistence): %v\n", err)
