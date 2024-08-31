@@ -8,10 +8,19 @@ type FollowUserDTO struct {
 	UpdatedAt	string	`json:"created_at"`
 }
 
+type FollowUpdateDTO struct {
+	FollowerID	int		`json:"follower_id"`
+	FolloweeID	int		`json:"followee_id"`
+}
+
 type FollowersRepository interface {
 	GetFollowers(userID int) (*[]FollowUserDTO, error)
 }
 
 type FolloweesRepository interface {
 	GetFollowees(userID int) (*[]FollowUserDTO, error)
+}
+
+type FollowRepository interface {
+	FollowUser(followerID int, followeeID int) error
 }

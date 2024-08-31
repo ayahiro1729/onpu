@@ -98,7 +98,7 @@ func NewServer() (*gin.Engine, error) {
 		tag.GET("/user/:user_id", userHandler.GetUserProfile)
 	}
 
-	// DBから最新のmusic listを取得するAPI
+	// music list情報API
 	{
 		musicListPersistence := persistence.NewMusicListPersistence(db)
 		musicListService := service.NewMusicListService(*musicListPersistence)
@@ -118,6 +118,9 @@ func NewServer() (*gin.Engine, error) {
 
 		// あるユーザーのフォロー中ユーザーを取得
 		tag.GET("/followee/:user_id", followHandler.GetFollowees)
+
+		// ユーザーをフォローする
+		tag.POST("/follow/:follower_id/:followee_id", followHandler.FollowUser)
 	}
 
 	for _, route := range r.Routes() {
