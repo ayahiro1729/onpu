@@ -40,6 +40,7 @@ export type ProfileProps = {
   iconImage?: string
   xLink?: string
   instagramLink?: string
+  myUserId?: number | null
 }
 
 export type Follower = {
@@ -54,4 +55,9 @@ export type FollowerProps = {
 
 export type FollowingsProps = {
   followings: Follower[]
+}
+
+export type HeaderProps = {
+  iconImage?: string
+  myUserId?: number | null
 }
