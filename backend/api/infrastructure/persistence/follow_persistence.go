@@ -50,7 +50,7 @@ func (p *FollowPersistence) GetFollowees(userID int) (*[]repository.FollowUserDT
 }
 
 func (p *FollowPersistence) FollowUser(followerID int, followeeID int) error {
-	follow := repository.FollowUpdateDTO{
+	follow := model.Follow{
 		FollowerID: followerID,
 		FolloweeID: followeeID,
 	}
