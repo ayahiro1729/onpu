@@ -44,3 +44,13 @@ func (s *FollowService) FollowUser(followerID int, followeeID int) error {
 	
 	return nil
 }
+
+func (s *FollowService) UnfollowUser(followerID int, followeeID int) error {
+	// TODO: APIを叩いた人が本人かSessionで確認する
+	if err := s.followPersistence.UnfollowUser(followerID, followeeID); err != nil {
+		fmt.Printf("error unfollowing user (service): %v\n", err)
+		return err
+	}
+	
+	return nil
+}

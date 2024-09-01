@@ -21,9 +21,9 @@ func (p *FollowPersistence) GetFollowers(userID int) (*[]repository.FollowUserDT
 	followers := []repository.FollowUserDTO{}
 
 	if err := p.db.Model(&model.Follow{}).
-			Select("users.id", "users.user_name", "users.user_name", "users.display_name", "users.icon_image", "follows.updated_at").
-			Joins("left join users on follows.followee_id = users.id").
-			Where("follows.followee_id = ?", userID).
+			Select("users.id AS user_id, users.user_name, users.display_name, users.icon_image, follows.updated_at").
+			Joins("left join users on follows.follower_id = users.id").
+			Where("follows.followee_id = ? AND follows.deleted_at IS NULL", userID).
 			Scan(&followers).Error;
 	err != nil {
 		fmt.Printf("error during select from follows when getting followers (persistence): %v\n", err)
@@ -37,9 +37,9 @@ func (p *FollowPersistence) GetFollowees(userID int) (*[]repository.FollowUserDT
 	followees := []repository.FollowUserDTO{}
 
 	if err := p.db.Model(&model.Follow{}).
-			Select("users.id, users.user_name, users.user_name, users.display_name, users.icon_image, follows.updated_at").
-			Joins("left join users on follows.follower_id = users.id").
-			Where("follows.follower_id = ?", userID).
+			Select("users.id AS user_id, users.user_name, users.display_name, users.icon_image, follows.updated_at").
+			Joins("left join users on follows.followee_id = users.id").
+			Where("follows.follower_id = ? AND follows.deleted_at IS NULL", userID).
 			Scan(&followees).Error;
 	err != nil {
 		fmt.Printf("error during select from follows when getting followees (persistence): %v\n", err)
@@ -56,6 +56,16 @@ func (p *FollowPersistence) FollowUser(followerID int, followeeID int) error {
 	}
 
 	if err := p.db.Select("FollowerID", "FolloweeID").Create(&follow).Error; err != nil {
+		fmt.Printf("errror during creating new record to follows table: %v\n", err)
+		return err
+	}
+
+	return nil
+}
+
+func (p *FollowPersistence) UnfollowUser(followerID int, followeeID int) error {
+	if err := p.db.Where("follower_id = ? AND followee_id = ?", followerID, followeeID).
+		Delete(&model.Follow{}).Error; err != nil {
 		fmt.Printf("errror during creating new record to follows table: %v\n", err)
 		return err
 	}

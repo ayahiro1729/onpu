@@ -92,3 +92,31 @@ func (h *FollowHandler) FollowUser(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{"message": "Successfully followed user"})
 }
+
+
+func (h *FollowHandler) UnfollowUser(c *gin.Context) {
+	followerIDStr := c.Param("follower_id")
+	followeeIDStr := c.Param("followee_id")
+
+	followerID, err := strconv.Atoi(followerIDStr)
+	if err != nil {
+		fmt.Printf("error reading follower_id param: %v\n", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	followeeID, err := strconv.Atoi(followeeIDStr)
+	if err != nil {
+		fmt.Printf("error reading followee_id param: %v\n", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := h.followService.UnfollowUser(followerID, followeeID); err != nil {
+		fmt.Printf("error unfollowing user (handler): %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"message": "Successfully unfollowed user"})
+}
