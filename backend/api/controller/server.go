@@ -9,7 +9,6 @@ import (
 	"github.com/ayahiro1729/onpu/api/controller/middleware"
 	"github.com/ayahiro1729/onpu/api/infrastructure/database"
 	"github.com/ayahiro1729/onpu/api/infrastructure/persistence"
-	"github.com/ayahiro1729/onpu/api/infrastructure/repository"
 	"github.com/ayahiro1729/onpu/api/usecase/service"
 
 	"github.com/gin-contrib/cors"
@@ -87,8 +86,8 @@ func NewServer() (*gin.Engine, error) {
 
 	// ユーザー情報API
 	{
-		userRepository := repository.NewUserRepository(db)
-		userService := service.NewUserService(*userRepository)
+		userPersistence := persistence.NewUserPersistence(db)
+		userService := service.NewUserService(*userPersistence)
 		userHandler := handler.NewUserHandler(userService)
 
 		// ユーザーを作成

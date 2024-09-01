@@ -101,5 +101,5 @@ func (h *UserHandler) PutUserProfile(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Successfully updated user"})
+	c.JSON(200, gin.H{"message": "Successfully updated user"})
 }
