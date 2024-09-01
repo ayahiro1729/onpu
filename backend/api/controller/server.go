@@ -8,7 +8,6 @@ import (
 	"github.com/ayahiro1729/onpu/api/controller/handler"
 	"github.com/ayahiro1729/onpu/api/controller/middleware"
 	"github.com/ayahiro1729/onpu/api/infrastructure/database"
-	"github.com/ayahiro1729/onpu/api/infrastructure/repository"
 	"github.com/ayahiro1729/onpu/api/infrastructure/persistence"
 	"github.com/ayahiro1729/onpu/api/usecase/service"
 
@@ -44,12 +43,12 @@ func NewServer() (*gin.Engine, error) {
 	// r.Use(middleware.Cors(), middleware.Logger(logger))
 
 	r.Use(cors.New(cors.Config{
-        AllowOrigins:     []string{"http://localhost:3000"},
-        AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
-        AllowHeaders:     []string{"Origin", "Content-Type"},
-        ExposeHeaders:    []string{"Content-Length"},
-        AllowCredentials: true,
-    }))
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Origin", "Content-Type"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
 
 	r.Use(middleware.Logger(logger))
 
@@ -87,8 +86,8 @@ func NewServer() (*gin.Engine, error) {
 
 	// ユーザー情報API
 	{
-		userRepository := repository.NewUserRepository(db)
-		userService := service.NewUserService(*userRepository)
+		userPersistence := persistence.NewUserPersistence(db)
+		userService := service.NewUserService(*userPersistence)
 		userHandler := handler.NewUserHandler(userService)
 
 		// ユーザーを作成
@@ -96,6 +95,9 @@ func NewServer() (*gin.Engine, error) {
 
 		// ユーザーの情報を取得（プロフィール画面）
 		tag.GET("/user/:user_id", userHandler.GetUserProfile)
+
+		// ユーザーの情報を更新
+		tag.PUT("/user/:user_id", userHandler.PutUserProfile)
 	}
 
 	// music list情報API

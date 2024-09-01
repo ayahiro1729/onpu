@@ -4,20 +4,20 @@ import (
 	"errors"
 
 	"github.com/ayahiro1729/onpu/api/domain/model"
-	"github.com/ayahiro1729/onpu/api/infrastructure/repository"
+	"github.com/ayahiro1729/onpu/api/infrastructure/persistence"
 )
 
 type UserService struct {
-	userRepository repository.UserRepository
+	userPersistence persistence.UserPersistence
 }
 
-func NewUserService(userRepository repository.UserRepository) *UserService {
-	return &UserService{userRepository: userRepository}
+func NewUserService(userPersistence persistence.UserPersistence) *UserService {
+	return &UserService{userPersistence: userPersistence}
 }
 
 func (s *UserService) RegisterOrLogin(spotifyUser *model.User) (*model.User, error) {
 	// Spotify IDでユーザーを検索
-	user, err := s.userRepository.FindUserBySpotifyID(spotifyUser.SpotifyID)
+	user, err := s.userPersistence.FindUserBySpotifyID(spotifyUser.SpotifyID)
 	// ユーザーが既に存在する場合、ログインと見なしてそのユーザーを返す
 	if err == nil {
 		return user, nil
@@ -34,7 +34,7 @@ func (s *UserService) RegisterOrLogin(spotifyUser *model.User) (*model.User, err
 		InstagramLink: "",
 	}
 
-	err = s.userRepository.CreateUser(newUser)
+	err = s.userPersistence.CreateUser(newUser)
 	if err != nil {
 		return nil, errors.New("failed to create new user")
 	}
@@ -43,9 +43,17 @@ func (s *UserService) RegisterOrLogin(spotifyUser *model.User) (*model.User, err
 }
 
 func (s *UserService) FindUserProfile(id uint) (*model.User, error) {
-	user, err := s.userRepository.FindUserByID(id)
+	user, err := s.userPersistence.FindUserByID(id)
 	if err != nil {
 		return nil, errors.New("failed to find user")
 	}
 	return user, nil
+}
+
+func (s *UserService) UpdateUserProfile(user *model.User) error {
+	err := s.userPersistence.UpdateUser(user)
+	if err != nil {
+		return errors.New("failed to update user")
+	}
+	return nil
 }
