@@ -42,8 +42,17 @@ func (r *UserRepository) CreateUser(user *model.User) error {
 
 // ユーザーを更新
 func (r *UserRepository) UpdateUser(user *model.User) error {
+	// ユーザーが存在するか確認
+	var existingUser model.User
+	if err := r.db.First(&existingUser, user.ID).Error; err != nil {
+		return err
+	}
 
-	return r.db.Save(user).Error
+	// レコードを更新
+	if err := r.db.Model(existingUser).Updates(user).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 // 指定したidのユーザーを削除
