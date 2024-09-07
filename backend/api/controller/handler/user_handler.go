@@ -103,3 +103,23 @@ func (h *UserHandler) PutUserProfile(c *gin.Context) {
 
 	c.JSON(200, gin.H{"message": "Successfully updated user"})
 }
+
+// ユーザーをユーザー名で検索
+func (h *UserHandler) SearchUsers(c *gin.Context) {
+	search_string := c.Query("search_string")
+	if search_string == "" {
+		c.JSON(400, gin.H{"error": "search_string is required"})
+		return
+	}
+
+	// 検索結果（ユーザーのリスト）を取得
+	users, err := h.userService.SearchUsers(search_string)
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"users": users,
+	})
+}
