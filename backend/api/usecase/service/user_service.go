@@ -5,6 +5,7 @@ import (
 
 	"github.com/ayahiro1729/onpu/api/domain/model"
 	"github.com/ayahiro1729/onpu/api/infrastructure/persistence"
+	"github.com/ayahiro1729/onpu/api/infrastructure/repository"
 )
 
 type UserService struct {
@@ -56,4 +57,14 @@ func (s *UserService) UpdateUserProfile(user *model.User) error {
 		return errors.New("failed to update user")
 	}
 	return nil
+}
+
+func (s *UserService) SearchUsers(search_string string) (*[]repository.UserSearchResultDTO, error) {
+	users, err := s.userPersistence.FindUsersByUserName(search_string)
+	if err != nil {
+		return nil, errors.New("failed to find user by user_name")
+	}
+
+	// usersが空でも空でなくてもそのまま返す
+	return users, nil
 }
