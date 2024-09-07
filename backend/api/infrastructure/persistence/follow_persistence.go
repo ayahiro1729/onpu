@@ -2,6 +2,7 @@ package persistence
 
 import (
 	"fmt"
+	"errors"
 
 	"github.com/ayahiro1729/onpu/api/domain/model"
 	"github.com/ayahiro1729/onpu/api/infrastructure/repository"
@@ -50,11 +51,36 @@ func (p *FollowPersistence) GetFollowees(userID int) (*[]repository.FollowUserDT
 }
 
 func (p *FollowPersistence) FollowUser(followerID int, followeeID int) error {
+	// 既にフォロー関係がないか確認
+	var existingFollow model.Follow
+	err := p.db.Unscoped().Where("follower_id = ? AND followee_id = ?", followerID, followeeID).
+		First(&existingFollow).Error
+
+	if err == nil {
+		if existingFollow.DeletedAt != nil {
+			// 既に論理削除されたフォロー関係がある場合、deleted_atをnullにして復元
+			err = p.db.Unscoped().Model(&existingFollow).Update("deleted_at", nil).Error
+			if err != nil {
+				fmt.Printf("error during restoring follow relationship: %v\n", err)
+				return err
+			}
+			// 復元に成功したら、レコード追加操作は行わない
+			return nil
+		}
+		// 既にフォローしている場合
+		return fmt.Errorf("already following this user")
+	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
+		// レコードが存在しない(期待されている結果)以外のエラーが発生した場合
+		fmt.Printf("error during checking follow relationship: %v\n", err)
+		return err
+	}
+
 	follow := model.Follow{
 		FollowerID: followerID,
 		FolloweeID: followeeID,
 	}
 
+	// 新規フォロー関係をテーブルに追加
 	if err := p.db.Select("FollowerID", "FolloweeID").Create(&follow).Error; err != nil {
 		fmt.Printf("errror during creating new record to follows table: %v\n", err)
 		return err
