@@ -6,9 +6,7 @@ import { Follower, Music, UserInfo } from '~/types/types';
 import { Followings } from '~/components/Followings';
 import { Followers } from '~/components/Followers';
 import { Header } from '~/components/Header';
-import { useEffect, useState } from 'react';
-import { Friends1 } from '~/components/Friends1';
-import { Friends2 } from '~/components/Friends2';
+import { useEffect, useState } from 'react'
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   const userId = params.user_id;
@@ -117,10 +115,8 @@ export default function User() {
           myUserId={myUserId}
         />
         <MusicList musicList={musicList}/>
-        {/* <Followings followings={followings}/>
-        <Followers followers={followers}/> */}
-        <Friends1 />
-        <Friends2 />
+        <Followings followings={followings}/>
+        <Followers followers={followers}/>
       </div>
     </div>
   );
