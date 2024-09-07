@@ -90,10 +90,20 @@ func (p *FollowPersistence) FollowUser(followerID int, followeeID int) error {
 }
 
 func (p *FollowPersistence) UnfollowUser(followerID int, followeeID int) error {
-	if err := p.db.Where("follower_id = ? AND followee_id = ?", followerID, followeeID).
-		Delete(&model.Follow{}).Error; err != nil {
+	result := p.db.Where("follower_id = ? AND followee_id = ?", followerID, followeeID).
+		Delete(&model.Follow{})
+	err := result.Error
+
+	// 削除中にエラーが発生した場合
+	if err != nil {
 		fmt.Printf("errror during creating new record to follows table: %v\n", err)
 		return err
+	}
+
+	// 削除したいレコードがなかった場合
+	if result.RowsAffected == 0 {
+		fmt.Printf("no follow relationship found", followerID, followeeID)
+		return fmt.Errorf("no follow relationship found")
 	}
 
 	return nil
