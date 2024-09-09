@@ -8,7 +8,7 @@ import (
 
 type Follow struct {
 	gorm.Model
-	ID         int       `gorm:"primaryKey";column:id`
+	ID         int       `gorm:"primaryKey"`
 	FollowerID int       `gorm:"column:follower_id;not null"`
 	FolloweeID int       `gorm:"column:followee_id;not null"`
 	CreatedAt  time.Time `gorm:"column:created_at;autoCreateTime"`
