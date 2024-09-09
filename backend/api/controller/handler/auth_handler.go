@@ -60,16 +60,9 @@ func (h *AuthHandler) AuthenticateUser(c *gin.Context) {
 	sessionUserID := sessions.DefaultMany(c, "user_id")
 	sessionUserID.Set("user_id", user_id)
 	if err := sessionUserID.Save(); err != nil {
-		fmt.Println("Error saving my user id to session: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	fmt.Println("My user id is saved to session!!: %d", sessionUserID.Get("user_id"))
-
-	// c.JSON(200, gin.H{
-	// 	"token": sessionAccessToken.Get("access_token"),
-	// 	"user_id": sessionUserID.Get("user_id"),
-	// })
 
 	// フロントエンドにリダイレクト
 	redirectURL := fmt.Sprintf("http://localhost:3000/user/%d", user_id)
@@ -86,8 +79,6 @@ func (h *AuthHandler) GetUserIDFromSession(c *gin.Context) {
 		return
 	}
 
-	fmt.Println("Retrieved token from session:", token)
-
 	sessionUserID := sessions.DefaultMany(c, "user_id")
 	userID := sessionUserID.Get("user_id")
 
@@ -97,11 +88,8 @@ func (h *AuthHandler) GetUserIDFromSession(c *gin.Context) {
 		return
 	}
 
-	fmt.Println("Retrieved user id from session:", userID)
-
 	c.JSON(200, gin.H{
-		"token": sessionAccessToken.Get("access_token"),
+		"token":   sessionAccessToken.Get("access_token"),
 		"user_id": sessionUserID.Get("user_id"),
 	})
-
 }

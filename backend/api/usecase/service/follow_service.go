@@ -3,8 +3,8 @@ package service
 import (
 	"fmt"
 
-	"github.com/ayahiro1729/onpu/api/infrastructure/repository"
 	"github.com/ayahiro1729/onpu/api/infrastructure/persistence"
+	"github.com/ayahiro1729/onpu/api/infrastructure/repository"
 )
 
 type FollowService struct {
@@ -41,7 +41,7 @@ func (s *FollowService) FollowUser(followerID int, followeeID int) error {
 		fmt.Printf("error following user (service): %v\n", err)
 		return err
 	}
-	
+
 	return nil
 }
 
@@ -51,6 +51,6 @@ func (s *FollowService) UnfollowUser(followerID int, followeeID int) error {
 		fmt.Printf("error unfollowing user (service): %v\n", err)
 		return err
 	}
-	
+
 	return nil
 }

@@ -40,7 +40,6 @@ func NewServer() (*gin.Engine, error) {
 
 	// setting a CORS
 	// setting a logger
-	// r.Use(middleware.Cors(), middleware.Logger(logger))
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000"},
@@ -110,6 +109,9 @@ func NewServer() (*gin.Engine, error) {
 		musicListHandler := handler.NewMusicListHandler(musicListService)
 
 		tag.GET("/music/:user_id", musicListHandler.LatestMusicList)
+
+		// ユーザーのmusic listを作成
+		tag.POST("/music/:user_id", musicListHandler.PostMusicList)
 	}
 
 	// フォロー情報API

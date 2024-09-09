@@ -1,4 +1,4 @@
-import { json, LoaderFunctionArgs } from '@remix-run/node';
+import { json, ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 import { Profile } from "~/components/Profile";
 import { MusicList } from "~/components/MusicList";
@@ -69,6 +69,25 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
   });
 
   return json({ userInfo, musicList, followers, followings });
+};
+
+export const action = async ({
+  request,
+  params,
+}: ActionFunctionArgs) => {
+  const userId = params.user_id;
+  const response = await fetch(`http://backend:8080/api/v1/music/${userId}`, {
+    method: 'POST',
+    headers: {
+      'Cookie': request.headers.get('Cookie') || '',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to update music list');
+  }
+
+  return json({ success: true });
 };
 
 export default function User() {

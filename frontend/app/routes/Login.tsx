@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 export async function action() {
   const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID as string;
   const REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI as string;
-  const SCOPE = "user-read-private user-read-email";
+  const SCOPE = "user-read-private user-read-email user-top-read";
 
   const params = new URLSearchParams({
     response_type: "code",
