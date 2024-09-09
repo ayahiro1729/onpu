@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"github.com/ayahiro1729/onpu/api/usecase/service"
-	
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,7 +21,7 @@ func NewFollowHandler(followService *service.FollowService) *FollowHandler {
 
 func (h *FollowHandler) GetFollowers(c *gin.Context) {
 	userIDStr := c.Param("user_id")
-	fmt.Printf(userIDStr)
+	fmt.Println(userIDStr)
 
 	userID, err := strconv.Atoi(userIDStr)
 	if err != nil {
@@ -45,7 +44,7 @@ func (h *FollowHandler) GetFollowers(c *gin.Context) {
 
 func (h *FollowHandler) GetFollowees(c *gin.Context) {
 	userIDStr := c.Param("user_id")
-	fmt.Printf(userIDStr)
+	fmt.Println(userIDStr)
 
 	userID, err := strconv.Atoi(userIDStr)
 	if err != nil {
@@ -92,7 +91,6 @@ func (h *FollowHandler) FollowUser(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{"message": "Successfully followed user"})
 }
-
 
 func (h *FollowHandler) UnfollowUser(c *gin.Context) {
 	followerIDStr := c.Param("follower_id")
