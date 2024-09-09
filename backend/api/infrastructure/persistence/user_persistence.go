@@ -4,6 +4,8 @@ import (
 	"fmt"
 
 	"github.com/ayahiro1729/onpu/api/domain/model"
+	"github.com/ayahiro1729/onpu/api/infrastructure/repository"
+
 	"gorm.io/gorm"
 )
 
@@ -32,6 +34,20 @@ func (p *UserPersistence) FindUserBySpotifyID(spotifyID string) (*model.User, er
 		return nil, err
 	}
 	return &user, nil
+}
+
+// user_nameでユーザーを検索
+func (p *UserPersistence) FindUsersByUserName(search_string string) (*[]repository.UserSearchResultDTO, error) {
+	users := []repository.UserSearchResultDTO{}
+
+	if err := p.db.Model(&model.User{}).
+		Select("id AS user_id", "user_name", "display_name", "icon_image").
+		Where("user_name LIKE ?", "%"+search_string+"%").
+		Scan(&users).Error; err != nil {
+		return nil, err
+	}
+
+	return &users, nil
 }
 
 // 新しいユーザーを作成

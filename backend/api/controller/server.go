@@ -97,6 +97,9 @@ func NewServer() (*gin.Engine, error) {
 
 		// ユーザーの情報を更新
 		tag.PUT("/user/:user_id", userHandler.PutUserProfile)
+
+		// ユーザーをユーザー名で検索
+		tag.GET("/user", userHandler.SearchUsers)
 	}
 
 	// music list情報API

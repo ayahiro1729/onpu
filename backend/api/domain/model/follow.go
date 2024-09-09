@@ -13,7 +13,7 @@ type Follow struct {
 	FolloweeID int       `gorm:"column:followee_id;not null"`
 	CreatedAt  time.Time `gorm:"column:created_at;autoCreateTime"`
 	UpdatedAt  time.Time `gorm:"column:updated_at;autoUpdateTime"`
-	DeletedAt  time.Time `gorm:"column:deleted_at;autoDeleteTime"`
+	DeletedAt  *time.Time `gorm:"column:deleted_at;autoDeleteTime"`
 
 	// Relations
 	Follower User `gorm:"foreignKey:FollowerID;references:ID"`
