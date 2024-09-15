@@ -37,10 +37,10 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
   const followingsData = await followingsResponse.json();
 
   const userInfo: UserInfo = {
-    displayName: userData.user.DisplayName,
-    iconImage: userData.user.IconImage,
-    xLink: userData.user.XLink,
-    instagramLink: userData.user.InstagramLink,
+    displayName: userData.user.display_name,
+    iconImage: userData.user.icon_image,
+    xLink: userData.user.x_link,
+    instagramLink: userData.user.instagram_link,
   };
 
   const musicList = musicData.musicList.musics.map((music: Music) => {
@@ -93,7 +93,7 @@ export const action = async ({
 export default function User() {
   const { userInfo, musicList, followers, followings } = useLoaderData<typeof loader>();
 
-  const [myUserId, setMyUserId] = useState<number | null>(null);  
+  const [myUserId, setMyUserId] = useState<number | null>(null);
 
   useEffect(() => {
     const getMyUserId = async () => {
@@ -123,12 +123,12 @@ export default function User() {
 
   return (
     <div>
-      <Header 
+      <Header
         iconImage={userInfo.iconImage}
         myUserId={myUserId}
       />
       <div className="font-sans p-4 pt-20 flex flex-col gap-8">
-        <Profile 
+        <Profile
           displayName={userInfo.displayName}
           iconImage={userInfo.iconImage}
           xLink={userInfo.xLink}
