@@ -11,22 +11,23 @@ export const action = async ({
   params,
   request,
 }: ActionFunctionArgs) => {
+  const userId = params.user_id;
   const formData = await request.formData();
   const updates = Object.fromEntries(formData);
 
-  const response = await fetch(`https://localhost:8080/api/v1/user/${params.userId}`, {
-    method: 'POST',
+  const response = await fetch(`http://backend:8080/api/v1/user/${userId}`, {
+    method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(updates),
   });
-  
+
   if (!response.ok) {
     throw new Error('Failed to update music list');
   }
 
-  return json({ success: true });
+  return redirect(`/user/${userId}`);
 };
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
@@ -49,7 +50,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
 
 export default function EditContact() {
   const { userInfo } = useLoaderData<typeof loader>();
-  const [myUserId, setMyUserId] = useState<number | null>(null);  
+  const [myUserId, setMyUserId] = useState<number | null>(null);
 
   useEffect(() => {
     const getMyUserId = async () => {
@@ -79,7 +80,7 @@ export default function EditContact() {
 
   return (
     <div>
-      <Header 
+      <Header
         iconImage={userInfo.iconImage}
         myUserId={myUserId}
       />
