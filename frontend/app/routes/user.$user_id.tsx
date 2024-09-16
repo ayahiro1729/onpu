@@ -7,8 +7,6 @@ import { Followings } from '~/components/Followings';
 import { Followers } from '~/components/Followers';
 import { Header } from '~/components/Header';
 import { useEffect, useState } from 'react';
-import { Friends1 } from '~/components/Friends1';
-import { Friends2 } from '~/components/Friends2';
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   const userId = params.user_id;
@@ -54,17 +52,15 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
 
   const followers = followerData.followers.map((follower: Follower) => {
     return {
-      userId: follower.userId,
-      displayName: follower.displayName,
-      iconImage: follower.iconImage,
+      user_id: follower.user_id,
+      icon_image: follower.icon_image,
     };
   });
 
   const followings = followingsData.followees.map((following: Follower) => {
     return {
-      userId: following.userId,
-      displayName: following.displayName,
-      iconImage: following.iconImage,
+      user_id: following.user_id,
+      icon_image: following.icon_image,
     };
   });
 
@@ -115,6 +111,7 @@ export default function User() {
     if (myUserId !== null) {
       console.log('myUserId:', myUserId);
     }
+
   }, [myUserId]);
 
   if (myUserId === null) {
@@ -136,10 +133,8 @@ export default function User() {
           myUserId={myUserId}
         />
         <MusicList musicList={musicList}/>
-        {/* <Followings followings={followings}/>
-        <Followers followers={followers}/> */}
-        <Friends1 />
-        <Friends2 />
+        <Followings followings={followings}/>
+        <Followers followers={followers}/>
       </div>
     </div>
   );

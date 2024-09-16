@@ -44,9 +44,8 @@ export type ProfileProps = {
 }
 
 export type Follower = {
-  userId: number;
-  displayName: string;
-  iconImage: string;
+  user_id: number;
+  icon_image: string;
 }
 
 export type FollowerProps = {
