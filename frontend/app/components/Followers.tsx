@@ -1,5 +1,5 @@
+import { Link } from "@remix-run/react";
 import React from "react";
-import { AnimatedTooltip } from "~/components/ui/animated-tooltip";
 import { FollowerProps } from "~/types/types";
 
 export const Followers: React.FC<FollowerProps> = ({followers}) => {
@@ -7,9 +7,11 @@ export const Followers: React.FC<FollowerProps> = ({followers}) => {
     <div className="flex flex-col gap-4">
       <p className="text-2xl">Followers</p>
       { followers.length === 0 && <div>No followers found.</div> }
-      <div className="flex flex-row items-center w-full">
-        <AnimatedTooltip items={followers} />
-      </div>
+      { followers.map((follower, index) => (
+        <Link to={`/user/${follower.user_id}`} key={index} className="flex items-center gap-2">
+          <img src={follower.icon_image} className="w-10 h-10 rounded-full" />
+        </Link>
+      ))}
     </div>
   );
 }
