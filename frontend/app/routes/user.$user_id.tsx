@@ -121,7 +121,6 @@ export default function User() {
   return (
     <div>
       <Header
-        iconImage={userInfo.iconImage}
         myUserId={myUserId}
       />
       <div className="font-sans p-4 pt-20 flex flex-col gap-8">

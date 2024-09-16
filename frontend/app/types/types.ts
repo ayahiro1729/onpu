@@ -57,6 +57,5 @@ export type FollowingsProps = {
 }
 
 export type HeaderProps = {
-  iconImage?: string
   myUserId?: number | null
 }
