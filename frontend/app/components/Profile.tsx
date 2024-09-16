@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { Button } from '~/components/ui/button'
 import X from '/x_logo.png'
 import Instagram from '/instagram_logo.png'
@@ -9,24 +9,30 @@ const Profile: React.FC<ProfileProps> = ({displayName, iconImage, xLink, instagr
   const params = useParams()
   const pageUserId = params.user_id
 
-  const [ isFollowed, setIsFollowed ] = useState<boolean>(false)
-
-  const handleFollow = () => {
-    setIsFollowed(!isFollowed)
-  }
+  // TODO: フォロー状態の確認
+  const isFollowed = false
 
   return (
     <div className='flex flex-col gap-4'>
       <div className='flex justify-between'>
         <p className='flex justify-center items-center text-2xl'>Profile</p>
-        <div className='pt-3'> 
-          { 
-            myUserId == pageUserId ? 
+        <div className='pt-3'>
+          {
+            myUserId == pageUserId ?
             <Form action="edit">
               <Button size="sm">Edit</Button>
             </Form> :
-            isFollowed ? <Button size="sm" onClick={handleFollow}>Unfollow</Button> : 
-            <Button size="sm" onClick={handleFollow} variant="outline">Follow</Button> 
+            isFollowed ?
+            <Form method='post' action='/unfollow'>
+              <input type='hidden' name='followings_id' value={pageUserId}/>
+              { myUserId && <input type='hidden' name='follower_id' value={myUserId}/> }
+              <Button type='submit' name='_action' aria-label='delete' value='delete'>Unfollow</Button>
+            </Form> :
+            <Form method='post' action='/follow'>
+              <input type='hidden' name='followings_id' value={pageUserId}/>
+              { myUserId && <input type='hidden' name='follower_id' value={myUserId}/> }
+              <Button type='submit' name='_action' aria-label='post' value='post' variant="outline">Follow</Button>
+            </Form>
           }
         </div>
       </div>
