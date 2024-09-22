@@ -53,7 +53,8 @@ func (mlp *MusicListPersistence) LatestMusicList(userID int) (*repository.MusicL
 
 func (mlp *MusicListPersistence) CreateMusicList(userID int) (int, error) {
 	musicList := model.MusicList{
-		UserID: userID,
+		UserID:    userID,
+		DeletedAt: nil,
 	}
 	if err := mlp.db.Create(&musicList).Error; err != nil {
 		fmt.Printf("error during create music_list (persistence): %v\n", err)
@@ -73,6 +74,7 @@ func (mlp *MusicListPersistence) CreateMusics(musicListID int, tracks []reposito
 			Image:       track.Image,
 			ArtistName:  track.ArtistName,
 			SpotifyLink: track.SpotifyLink,
+			DeletedAt:   nil,
 		}
 		musics = append(musics, music)
 	}

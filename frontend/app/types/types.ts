@@ -59,3 +59,8 @@ export type FollowingsProps = {
 export type HeaderProps = {
   myUserId?: number | null
 }
+
+export type MusicListProps = {
+  myUserId: number
+  musicList: MusicCard[]
+}
