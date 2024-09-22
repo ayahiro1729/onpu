@@ -14,9 +14,9 @@ type Music struct {
 	Image       string
 	ArtistName  string
 	SpotifyLink string
-	CreatedAt   time.Time `gorm:"autoCreateTime"`
-	UpdatedAt   time.Time `gorm:"autoUpdateTime"`
-	DeletedAt   time.Time `gorm:"autoDeleteTime"`
+	CreatedAt   *time.Time `gorm:"autoCreateTime"`
+	UpdatedAt   *time.Time `gorm:"autoUpdateTime"`
+	DeletedAt   *time.Time `gorm:"autoDeleteTime"`
 
 	// Relations
 	MusicList MusicList `gorm:"foreignKey:MusicListID"`
