@@ -32,7 +32,7 @@ func (s *MusicListService) LatestMusicList(userID int) (*repository.MusicListWit
 }
 
 func (s *MusicListService) GetTopTracks(accessToken string) ([]repository.MusicDTO, error) {
-	uri := "https://api.spotify.com/v1/me/top/tracks?limit=10"
+	uri := "https://api.spotify.com/v1/me/top/tracks?limit=10&time_range=short_term"
 	req, err := http.NewRequest("GET", uri, http.NoBody)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %v", err)
