@@ -131,7 +131,7 @@ export default function User() {
           instagramLink={userInfo.instagramLink}
           myUserId={myUserId}
         />
-        <MusicList musicList={musicList}/>
+        <MusicList myUserId={myUserId} musicList={musicList}/>
         <Followings followings={followings}/>
         <Followers followers={followers}/>
       </div>
