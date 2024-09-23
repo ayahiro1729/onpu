@@ -106,3 +106,15 @@ func (p *FollowPersistence) UnfollowUser(followerID int, followeeID int) error {
 
 	return nil
 }
+
+func (p *FollowPersistence) FindFollow(followerID int, followeeID int) (*model.Follow, error) {
+	var follow model.Follow
+	result := p.db.Where("follower_id = ? AND followee_id = ?", followerID, followeeID).First(&follow)
+	
+	err := result.Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &follow, nil
+}

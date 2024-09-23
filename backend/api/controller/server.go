@@ -131,6 +131,9 @@ func NewServer() (*gin.Engine, error) {
 
 		// ユーザーのフォローを外す
 		tag.DELETE("/follow/:follower_id/:followee_id", followHandler.UnfollowUser)
+
+		// フォローしているかどうかを返す
+		tag.GET("/is_following/:follower_id/:followee_id", followHandler.GetIsFollowing)
 	}
 
 	for _, route := range r.Routes() {
