@@ -8,9 +8,16 @@ import {
   DialogTrigger,
 } from "~/components/ui/dialog"
 import searchLogo from '/search.svg'
-import { useState } from "react";
+import { useState, ChangeEvent } from "react";
 
 export const UserSearch = () => {
+  type UserSearchResult = {
+    user_id: number;
+    user_name: string;
+    display_name: string;
+    icon_image: string;
+  }
+
   const placeholders = [
     "",
   ];
@@ -19,6 +26,7 @@ export const UserSearch = () => {
   const [suggestions, setSuggestions] = useState([
     'React', 'JavaScript', 'Typescript', 'Node.js', 'Python', 'Java', 'C#', 'Go', 'Raaa', 'aaa'
   ]);
+  const [results, setResults] = useState<UserSearchResult[]>([]);
 
   const filteredSuggestions = query
     ? suggestions.filter((suggestion) =>
@@ -26,13 +34,22 @@ export const UserSearch = () => {
       ).slice(0, 5) 
     : [];
 
-  const handleChange = (text: string) => {
-    console.log(text);
+  const handleChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const searchInput: string|null = event.target.value;
+
+    if (searchInput) {
+      const searchString = encodeURIComponent(searchInput);
+      const userSearchResponse = await fetch(`http://localhost:8080/api/v1/user?search_string=${searchString}`);
+      if (!userSearchResponse.ok) {
+        throw new Error (`Failed to fetch user search data: ${userSearchResponse.statusText}`);
+      }
+      const userSearchData = await userSearchResponse.json();
+      setResults(userSearchData.users);
+    } else {
+      setResults([]);
+    }
   };
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log("submitted");
-  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -46,8 +63,7 @@ export const UserSearch = () => {
           <div className="flex flex-col justify-center items-center">
             <PlaceholdersAndVanishInput
               placeholders={placeholders}
-              onChange={(event) => setQuery(event.target.value)}
-              onSubmit={onSubmit}
+              onChange={handleChange}
             />
           </div>
           {filteredSuggestions.length > 0 && (
@@ -65,6 +81,20 @@ export const UserSearch = () => {
             </div>
         )}
         </DialogHeader>
+        <div>
+          <ul>
+            {results.length > 0 ? (
+              results.map((user: UserSearchResult) => (
+              <li key={user.user_id}>
+                <img src={user.icon_image} className="w-10 h-10 rounded-full" />
+                <span>{user.display_name}</span>
+                <span>{user.user_name}</span>
+              </li>
+              ))) : (
+                <span>no results</span>
+              )}
+          </ul>
+        </div>
       </DialogContent>
     </Dialog>
   );
