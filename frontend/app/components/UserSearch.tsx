@@ -36,10 +36,14 @@ export const UserSearch = () => {
     }
   };
 
+  const handleOpen = () => {
+    setResults([]);
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <img src={searchLogo} className='w-7 h-auto'/>
+        <img src={searchLogo} className='w-7 h-auto' onClick={handleOpen}/>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
