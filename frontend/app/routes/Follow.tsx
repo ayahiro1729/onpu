@@ -18,12 +18,3 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   return redirect(`/user/${followings_id}`)
 }
-
-export default function Follow() {
-
-  return (
-    <div>
-      <p>Follow</p>
-    </div>
-  )
-}
