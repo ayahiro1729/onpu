@@ -64,3 +64,10 @@ export type MusicListProps = {
   myUserId: number
   musicList: MusicCard[]
 }
+
+export type UserSearchResult = {
+  user_id: number;
+  user_name: string;
+  display_name: string;
+  icon_image: string;
+}
