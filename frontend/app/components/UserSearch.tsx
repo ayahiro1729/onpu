@@ -6,6 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose,
 } from "~/components/ui/dialog"
 import searchLogo from '/search.svg'
 import { useState, ChangeEvent } from "react";
@@ -58,9 +59,11 @@ export const UserSearch = () => {
             {results.length > 0 ? (
               results.map((user: UserSearchResult) => (
               <li key={user.user_id}>
-                <Link to={`/user/${user.user_id}`} className="flex gap-3 items-center">
-                  <img src={user.icon_image} className="w-10 h-10 rounded-full"/>
-                  <span>{user.display_name}</span>
+                <Link to={`/user/${user.user_id}`}>
+                  <DialogClose className="flex gap-3 items-center">
+                    <img src={user.icon_image} className="w-10 h-10 rounded-full"/>
+                    <span>{user.display_name}</span>
+                  </DialogClose>
                 </Link>
               </li>
               ))) : (
