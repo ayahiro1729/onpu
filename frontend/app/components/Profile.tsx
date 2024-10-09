@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Button } from '~/components/ui/button'
 import X from '/x_logo.png'
 import Instagram from '/instagram_logo.png'
@@ -8,9 +8,19 @@ import { Form, useParams } from "@remix-run/react";
 const Profile: React.FC<ProfileProps> = ({displayName, iconImage, xLink, instagramLink, myUserId}) => {
   const params = useParams()
   const pageUserId = params.user_id
+  const [isFollowed, setIsFollowed] = useState<boolean>(false)
 
-  // TODO: フォロー状態の確認
-  const isFollowed = false
+  useEffect(() => {
+    const followJudge = async () => {
+      const response = await fetch(`http://localhost:8080/api/v1/is_following/${myUserId}/${pageUserId}`)
+      if (!response.ok) {
+        throw new Error (`Failed to fetch follower data: ${response.statusText}`)
+      }
+      const data = await response.json()
+      setIsFollowed(data.is_following)
+    }
+    followJudge()
+  }, [isFollowed])
 
   return (
     <div className='flex flex-col gap-4'>
@@ -26,12 +36,12 @@ const Profile: React.FC<ProfileProps> = ({displayName, iconImage, xLink, instagr
             <Form method='post' action='/unfollow'>
               <input type='hidden' name='followings_id' value={pageUserId}/>
               { myUserId && <input type='hidden' name='follower_id' value={myUserId}/> }
-              <Button type='submit' name='_action' aria-label='delete' value='delete'>Unfollow</Button>
+              <Button type='submit' name='_action' aria-label='delete' value='delete' onClick={() => location.reload()}>Unfollow</Button>
             </Form> :
             <Form method='post' action='/follow'>
               <input type='hidden' name='followings_id' value={pageUserId}/>
               { myUserId && <input type='hidden' name='follower_id' value={myUserId}/> }
-              <Button type='submit' name='_action' aria-label='post' value='post' variant="outline">Follow</Button>
+              <Button type='submit' name='_action' aria-label='post' value='post' variant="outline" onClick={() => location.reload()}>Follow</Button>
             </Form>
           }
         </div>

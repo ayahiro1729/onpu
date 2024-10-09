@@ -81,7 +81,6 @@ export default function EditContact() {
   return (
     <div>
       <Header
-        iconImage={userInfo.iconImage}
         myUserId={myUserId}
       />
       <div className="p-4 pt-20">

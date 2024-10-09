@@ -55,7 +55,6 @@ export const UserSearch = () => {
             <PlaceholdersAndVanishInput
               placeholders={placeholders}
               onChange={handleChange}
-              onSubmit={() => {}}
             />
           </div>
         </DialogHeader>
