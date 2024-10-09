@@ -2,9 +2,12 @@ package service
 
 import (
 	"fmt"
+	"errors"
 
 	"github.com/ayahiro1729/onpu/api/infrastructure/persistence"
 	"github.com/ayahiro1729/onpu/api/infrastructure/repository"
+
+	"gorm.io/gorm"
 )
 
 type FollowService struct {
@@ -53,4 +56,18 @@ func (s *FollowService) UnfollowUser(followerID int, followeeID int) error {
 	}
 
 	return nil
+}
+
+func (s *FollowService) GetIsFollowing(followerID int, followeeID int) (bool, error) {
+	_, err := s.followPersistence.FindFollow(followerID, followeeID)
+	// レコードが存在しない場合
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return false, nil
+	}
+
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
