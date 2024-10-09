@@ -59,9 +59,9 @@ export const UserSearch = () => {
             />
           </div>
         </DialogHeader>
-        <ScrollArea className="mt-4">
+        <ScrollArea className="mt-4 h-64">
             {results.length > 0 ? (
-              <ul className="flex flex-col gap-2 items-start">
+              <ul className="flex flex-col gap-3 items-start">
                 {results.map((user: UserSearchResult) => (
                   <li key={user.user_id}>
                     <Link to={`/user/${user.user_id}`}>
