@@ -9,30 +9,15 @@ import {
 } from "~/components/ui/dialog"
 import searchLogo from '/search.svg'
 import { useState, ChangeEvent } from "react";
+import { Link } from "@remix-run/react";
+import { UserSearchResult } from "~/types/types";
 
 export const UserSearch = () => {
-  type UserSearchResult = {
-    user_id: number;
-    user_name: string;
-    display_name: string;
-    icon_image: string;
-  }
-
   const placeholders = [
     "",
   ];
 
-  const [query, setQuery] = useState('');
-  const [suggestions, setSuggestions] = useState([
-    'React', 'JavaScript', 'Typescript', 'Node.js', 'Python', 'Java', 'C#', 'Go', 'Raaa', 'aaa'
-  ]);
   const [results, setResults] = useState<UserSearchResult[]>([]);
-
-  const filteredSuggestions = query
-    ? suggestions.filter((suggestion) =>
-        suggestion.toLowerCase().includes(query.toLowerCase())
-      ).slice(0, 5) 
-    : [];
 
   const handleChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const searchInput: string|null = event.target.value;
@@ -64,34 +49,22 @@ export const UserSearch = () => {
             <PlaceholdersAndVanishInput
               placeholders={placeholders}
               onChange={handleChange}
+              onSubmit={() => {}}
             />
           </div>
-          {filteredSuggestions.length > 0 && (
-            <div className="w-full bg-white border border-gray-300 rounded-md shadow-lg">
-              <ul className="py-1">
-                {filteredSuggestions.map((suggestion) => (
-                  <li
-                    key={suggestion}
-                    className="px-4 py-2 text-gray-700 hover:bg-gray-100 cursor-pointer flex justify-start items-center"
-                  >
-                    {suggestion}
-                  </li>
-                ))}
-              </ul>
-            </div>
-        )}
         </DialogHeader>
         <div>
-          <ul>
+          <ul className="flex flex-col gap-2">
             {results.length > 0 ? (
               results.map((user: UserSearchResult) => (
               <li key={user.user_id}>
-                <img src={user.icon_image} className="w-10 h-10 rounded-full" />
-                <span>{user.display_name}</span>
-                <span>{user.user_name}</span>
+                <Link to={`/user/${user.user_id}`} className="flex gap-3 items-center">
+                  <img src={user.icon_image} className="w-10 h-10 rounded-full"/>
+                  <span>{user.display_name}</span>
+                </Link>
               </li>
               ))) : (
-                <span>no results</span>
+                <span className="flex justify-center text-2xl">No Results</span>
               )}
           </ul>
         </div>
