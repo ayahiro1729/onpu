@@ -8,6 +8,7 @@ import {
   DialogTrigger,
   DialogClose,
 } from "~/components/ui/dialog"
+import { ScrollArea } from "~/components/ui/scroll-area"
 import searchLogo from '/search.svg'
 import { useState, ChangeEvent } from "react";
 import { Link } from "@remix-run/react";
@@ -58,7 +59,7 @@ export const UserSearch = () => {
             />
           </div>
         </DialogHeader>
-        <div>
+        <ScrollArea className="mt-4">
           <ul className="flex flex-col gap-2">
             {results.length > 0 ? (
               results.map((user: UserSearchResult) => (
@@ -74,7 +75,7 @@ export const UserSearch = () => {
                 <span className="flex justify-center text-2xl">No Results</span>
               )}
           </ul>
-        </div>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
