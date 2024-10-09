@@ -60,21 +60,22 @@ export const UserSearch = () => {
           </div>
         </DialogHeader>
         <ScrollArea className="mt-4">
-          <ul className="flex flex-col gap-2">
             {results.length > 0 ? (
-              results.map((user: UserSearchResult) => (
-              <li key={user.user_id}>
-                <Link to={`/user/${user.user_id}`}>
-                  <DialogClose className="flex gap-3 items-center">
-                    <img src={user.icon_image} className="w-10 h-10 rounded-full"/>
-                    <span>{user.display_name}</span>
-                  </DialogClose>
-                </Link>
-              </li>
-              ))) : (
+              <ul className="flex flex-col gap-2 items-start">
+                {results.map((user: UserSearchResult) => (
+                  <li key={user.user_id}>
+                    <Link to={`/user/${user.user_id}`}>
+                      <DialogClose className="flex gap-3 items-center">
+                        <img src={user.icon_image} className="w-10 h-10 rounded-full"/>
+                        <span>{user.display_name}</span>
+                      </DialogClose>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
                 <span className="flex justify-center text-2xl">No Results</span>
-              )}
-          </ul>
+            )}
         </ScrollArea>
       </DialogContent>
     </Dialog>
