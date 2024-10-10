@@ -42,7 +42,7 @@ func (p *UserPersistence) FindUsersByUserName(search_string string) (*[]reposito
 
 	if err := p.db.Model(&model.User{}).
 		Select("id AS user_id", "user_name", "display_name", "icon_image").
-		Where("user_name LIKE ?", "%"+search_string+"%").
+		Where("display_name LIKE ?", "%"+search_string+"%").
 		Scan(&users).Error; err != nil {
 		return nil, err
 	}
