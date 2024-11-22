@@ -26,5 +26,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  return (
+    <div className="relative">
+      <Outlet />
+    </div>
+  );
 }

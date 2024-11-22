@@ -1,13 +1,18 @@
 package main
 
 import (
+	"log/slog"
+
 	"github.com/ayahiro1729/onpu/api/controller"
 )
 
 func main() {
 	s, err := controller.NewServer()
 	if err != nil {
-		panic(err)
+		slog.Error(err.Error())
 	}
-	s.Run()
+
+	if err := s.Run(":8080"); err != nil {
+		slog.Error(err.Error())
+	}
 }

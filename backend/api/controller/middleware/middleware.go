@@ -14,20 +14,20 @@ import (
 
 type ServerLogJsonHandler struct {
 	slog.Handler
-	w io.Writer
+	w      io.Writer
 	indent int
 }
 
 type ServerLogJsonOptions struct {
 	SlogOpts slog.HandlerOptions
-	Indent int
+	Indent   int
 }
 
 type RequestInfo struct {
-	status int
-	contents_length int64
+	status                                            int
+	contents_length                                   int64
 	method, path, sourceIP, quesy, user_agent, errors string
-	elapsed time.Duration
+	elapsed                                           time.Duration
 }
 
 func Cors() gin.HandlerFunc {
@@ -44,7 +44,7 @@ func Cors() gin.HandlerFunc {
 			"Content-Type",
 		},
 		AllowCredentials: false,
-		MaxAge: 24 *time.Hour,
+		MaxAge:           24 * time.Hour,
 	})
 }
 
@@ -69,8 +69,8 @@ func Logger(l *slog.Logger) gin.HandlerFunc {
 func NewServerLogJsonHandler(w io.Writer, opts ServerLogJsonOptions) *ServerLogJsonHandler {
 	return &ServerLogJsonHandler{
 		Handler: slog.NewJSONHandler(w, &opts.SlogOpts),
-		w: w,
-		indent: opts.Indent,
+		w:       w,
+		indent:  opts.Indent,
 	}
 }
 
@@ -78,13 +78,13 @@ func (r *RequestInfo) LogValue() slog.Value {
 	return slog.GroupValue(
 		slog.Int("status", r.status),
 		slog.Int64("contents_length", r.contents_length),
-		slog.String("method",r.method),
-		slog.String("path",r.path),
-		slog.String("sourceIP",r.sourceIP),
-		slog.String("query",r.quesy),
-		slog.String("user_agent",r.user_agent),
-		slog.String("errors",r.errors),
-		slog.Duration("elapsed",r.elapsed),
+		slog.String("method", r.method),
+		slog.String("path", r.path),
+		slog.String("sourceIP", r.sourceIP),
+		slog.String("query", r.quesy),
+		slog.String("user_agent", r.user_agent),
+		slog.String("errors", r.errors),
+		slog.Duration("elapsed", r.elapsed),
 	)
 }
 
@@ -104,7 +104,9 @@ func (h *ServerLogJsonHandler) Handle(_ context.Context, r slog.Record) error {
 		return err
 	}
 
-	h.w.Write(b)
+	if _, err := h.w.Write(b); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -116,7 +118,10 @@ func addFields(fields map[string]any, a slog.Attr) {
 		return
 	}
 
-	attrs := value.([]slog.Attr)
+	attrs, ok := value.([]slog.Attr)
+	if !ok {
+		return
+	}
 	innerFields := make(map[string]any, len(attrs))
 	for _, attr := range attrs {
 		addFields(innerFields, attr)
